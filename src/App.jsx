@@ -8,6 +8,7 @@ import Personalization from './pages/Personalization';
 import MealDetails from './pages/MealDetails';
 import Generator from './pages/Generator';
 import GroceryList from './pages/GroceryList';
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
