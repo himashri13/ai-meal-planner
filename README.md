@@ -4,7 +4,7 @@
 
 <p align="center">
 
-🚀 <a href="https://ai-meal-planner-inky.vercel.app/login"><strong>Live Demo</strong></a> •
+🚀 <a href="https://ai-meal-planner-inky.vercel.app/dashboard><strong>Live Demo</strong></a> •
 💻 <a href="https://github.com/himashri13/ai-meal-planner"><strong>GitHub Repository</strong></a>
 
 </p>
