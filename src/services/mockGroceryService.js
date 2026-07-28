@@ -1,13 +1,13 @@
 export const CATEGORIES = [
-  'Produce', 'Dairy', 'Grains & Pulses', 'Spices & Condiments', 'Pantry & Misc'
+  'Produce', 'Dairy', 'Grains & Pulses', 'Spices & Condiments', 'Pantry', 'Oils', 'Frozen', 'Miscellaneous'
 ];
 
 const CATEGORY_MAP = {
   'Idli': 'Grains & Pulses', 'Sambar': 'Pantry & Misc', 'Chutney': 'Spices & Condiments',
   'Rice': 'Grains & Pulses', 'Dal': 'Grains & Pulses', 'Ghee': 'Dairy',
   'Tomato': 'Produce', 'Onion': 'Produce', 'Spinach': 'Produce',
-  'Chicken': 'Pantry & Misc', 'Egg': 'Dairy', 'Paneer': 'Dairy',
-  'Oil': 'Pantry & Misc', 'Salt': 'Spices & Condiments', 'Pepper': 'Spices & Condiments',
+  'Chicken': 'Frozen', 'Egg': 'Dairy', 'Paneer': 'Dairy',
+  'Oil': 'Oils', 'Salt': 'Spices & Condiments', 'Pepper': 'Spices & Condiments',
   'Yogurt': 'Dairy', 'Milk': 'Dairy', 'Butter': 'Dairy', 'Cheese': 'Dairy',
   'Oats': 'Grains & Pulses', 'Quinoa': 'Grains & Pulses', 'Millet': 'Grains & Pulses',
   'Roti': 'Grains & Pulses', 'Chapati': 'Grains & Pulses', 'Paratha': 'Grains & Pulses',
@@ -46,7 +46,7 @@ const determineCategory = (ingredientName) => {
       return category;
     }
   }
-  return 'Pantry & Misc'; // Default
+  return 'Miscellaneous'; // Default
 };
 
 /**
@@ -84,7 +84,7 @@ export const generateGroceryList = async (meals, householdSize = 1) => {
         name: parsed.hasQuantity ? parsed.rest : parsed.original,
         scaledText,
         category,
-        estimatedCost: Math.floor(Math.random() * 5) + 1, // $1 to $5 mock cost per item
+        estimatedCost: Math.floor(Math.random() * 80) + 20, // ₹20 to ₹100 mock cost per item
         purchased: false,
         alreadyHave: false
       });
@@ -101,7 +101,7 @@ export const generateGroceryList = async (meals, householdSize = 1) => {
     if (grouped[item.category]) {
       grouped[item.category].push(item);
     } else {
-      grouped['Pantry & Misc'].push(item);
+      grouped['Miscellaneous'].push(item);
     }
   });
 

@@ -153,7 +153,7 @@ export default function GroceryList() {
         <div className="flex-grow">
           <label className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1 block">Estimated Cost</label>
           <div className="text-3xl font-extrabold text-slate-800 flex items-baseline gap-2">
-            ${groceryData?.estimatedCost || '0'}
+            ₹{groceryData?.estimatedCost || '0'}
             <span className="text-sm font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
               On Budget
             </span>
