@@ -1,730 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>404 — NutriAI | Page Not Found</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Home, ArrowRight, Utensils } from 'lucide-react';
 
-  <style>
-    /* ── RESET & TOKENS ── */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+const TIPS = [
+  "Eat protein with every meal.",
+  "Hydration improves metabolism.",
+  "Fiber keeps you full longer.",
+  "Vegetables should fill half your plate.",
+  "Small healthy habits create lasting results."
+];
 
-    :root {
-      --emerald:        #059669;
-      --emerald-mid:    #10b981;
-      --emerald-light:  #34d399;
-      --mint:           #6ee7b7;
-      --white:          #ffffff;
-      --glass-bg:       rgba(255, 255, 255, 0.055);
-      --glass-border:   rgba(110, 231, 183, 0.2);
-      --glass-shadow:   0 8px 40px rgba(0, 0, 0, 0.35),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.09);
-    }
+const VEGETABLES = [
+  { emoji: '🥑', top: '10%', left: '15%', delay: '0s', duration: '4s' },
+  { emoji: '🥕', top: '5%', right: '15%', delay: '0.5s', duration: '3.5s' },
+  { emoji: '🥦', top: '45%', left: '5%', delay: '1s', duration: '5s' },
+  { emoji: '🍅', bottom: '15%', left: '20%', delay: '0.2s', duration: '4.5s' },
+  { emoji: '🍎', bottom: '10%', right: '25%', delay: '1.5s', duration: '3.8s' },
+  { emoji: '🥬', top: '40%', right: '5%', delay: '0.8s', duration: '4.2s' },
+  { emoji: '🌽', bottom: '35%', left: '10%', delay: '2s', duration: '4.8s' },
+  { emoji: '🥗', top: '25%', right: '20%', delay: '1.2s', duration: '4s' }
+];
 
-    html, body { height: 100%; }
+export default function NotFound() {
+  const navigate = useNavigate();
+  const [tip, setTip] = useState('');
 
-    body {
-      font-family: 'DM Sans', system-ui, sans-serif;
-      /* Radial from upper-right — feels like light through forest canopy */
-      background: radial-gradient(ellipse 120% 80% at 80% 10%,
-                    #0d3d26 0%,
-                    #071c10 42%,
-                    #040d07 100%);
-      min-height: 100vh;
-      color: var(--white);
-      overflow-x: hidden;
-    }
+  useEffect(() => {
+    // Pick a random tip on mount
+    setTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
+  }, []);
 
-    /* ── AI PARTICLE CANVAS ── */
-    #ai-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-    }
+  return (
+    <div className="min-h-screen bg-slate-900 bg-[radial-gradient(ellipse_at_80%_10%,_#0d3d26_0%,_#071c10_42%,_#040d07_100%)] text-white overflow-hidden relative flex flex-col font-sans">
+      
+      {/* Ambient Glow Orbs */}
+      <div className="absolute top-[-200px] right-[-150px] w-[600px] h-[600px] rounded-full bg-emerald-500/10 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-150px] left-[-150px] w-[500px] h-[500px] rounded-full bg-emerald-600/10 blur-[100px] pointer-events-none" />
 
-    /* ── AMBIENT GLOW ORBS ── */
-    .orb {
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .orb-tl {
-      width: 640px; height: 640px;
-      top: -220px; right: -180px;
-      background: radial-gradient(circle,
-        rgba(16, 185, 129, 0.16) 0%,
-        transparent 68%);
-    }
-    .orb-bl {
-      width: 480px; height: 480px;
-      bottom: -180px; left: -140px;
-      background: radial-gradient(circle,
-        rgba(5, 150, 105, 0.13) 0%,
-        transparent 68%);
-    }
+      {/* Main Content Grid */}
+      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center max-w-7xl mx-auto w-full px-6 py-12 gap-12 lg:gap-24 relative z-10">
+        
+        {/* LEFT: Glassmorphism Card */}
+        <div className="w-full max-w-lg lg:w-1/2 order-2 lg:order-1 flex flex-col">
+          <div className="bg-white/5 backdrop-blur-2xl border border-emerald-400/20 rounded-[2rem] p-8 md:p-12 shadow-[0_8px_40px_rgba(0,0,0,0.35)_inset_0_1px_0_rgba(255,255,255,0.1)] relative group hover:border-emerald-400/30 transition-colors duration-500">
+            
+            {/* Top Shine Accent */}
+            <div className="absolute top-0 left-[20%] right-[20%] h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-50" />
+            
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-8">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              404 Error
+            </div>
 
-    /* ── PAGE SHELL ── */
-    .page {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+            <h1 className="text-7xl font-black mb-4 bg-gradient-to-br from-emerald-300 to-emerald-600 text-transparent bg-clip-text">
+              404
+            </h1>
 
-    /* ── NAV ── */
-    nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.375rem 3.5rem;
-      background: rgba(255, 255, 255, 0.035);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--glass-border);
-    }
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 leading-tight">
+              <span className="text-emerald-400">Oops!</span> Looks like this recipe got lost.
+            </h2>
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-family: 'Playfair Display', serif;
-      font-size: 1.45rem;
-      font-weight: 900;
-      color: var(--white);
-      text-decoration: none;
-      letter-spacing: -0.01em;
-    }
-    .logo .ai { color: var(--emerald-light); }
-    .logo-badge {
-      width: 38px; height: 38px;
-      border-radius: 11px;
-      background: linear-gradient(135deg, var(--emerald), var(--emerald-mid));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.15rem;
-      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
-      flex-shrink: 0;
-    }
+            <p className="text-slate-400 text-base md:text-lg mb-8 leading-relaxed">
+              Looks like you've wandered away from your personalized meal plan. Don't worry, your AI nutrition assistant is ready to guide you back.
+            </p>
 
-    .nav-links {
-      display: flex;
-      gap: 2.5rem;
-      list-style: none;
-    }
-    .nav-links a {
-      color: rgba(255, 255, 255, 0.55);
-      text-decoration: none;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      transition: color 0.22s;
-    }
-    .nav-links a:hover { color: var(--mint); }
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <button 
+                onClick={() => navigate('/login')}
+                className="inline-flex justify-center items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white rounded-xl font-semibold shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.5)] hover:-translate-y-0.5 transition-all duration-300 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                aria-label="Back to Login page"
+              >
+                <Home size={18} />
+                Back to Login
+              </button>
+              
+              <button 
+                onClick={() => navigate('/generator')}
+                className="inline-flex justify-center items-center gap-2 px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-400/30 text-white rounded-xl font-medium transition-all duration-300 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                aria-label="Generate Meal Plan page"
+              >
+                <Utensils size={18} />
+                Generate Meal Plan
+              </button>
+            </div>
 
-    /* ── MAIN GRID ── */
-    main {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: center;
-      gap: 3.5rem;
-      padding: 4rem 3.5rem;
-      max-width: 1380px;
-      width: 100%;
-      margin: 0 auto;
-    }
+            {/* AI Tip Hint */}
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50" role="complementary" aria-label="AI Nutrition Tip">
+              <ArrowRight size={16} className="text-emerald-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
+              <div>
+                <p className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-1">AI Nutrition Tip</p>
+                <p className="text-sm text-slate-400 italic">"{tip}"</p>
+              </div>
+            </div>
 
-    /* ── LEFT: GLASSMORPHISM CARD ── */
-    .card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      border: 1px solid var(--glass-border);
-      border-radius: 28px;
-      padding: 3.5rem;
-      box-shadow: var(--glass-shadow);
-      position: relative;
-      overflow: hidden;
-      max-width: 520px;
-    }
-
-    /* Top shimmer accent */
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 18%; right: 18%;
-      height: 2px;
-      background: linear-gradient(90deg,
-        transparent,
-        var(--emerald-light),
-        var(--mint),
-        transparent);
-      border-radius: 0 0 4px 4px;
-    }
-
-    /* Decorative ghost leaf */
-    .card::after {
-      content: '🌿';
-      position: absolute;
-      font-size: 13rem;
-      bottom: -2.5rem; right: -2rem;
-      opacity: 0.035;
-      pointer-events: none;
-      line-height: 1;
-      transform: rotate(-15deg);
-    }
-
-    /* ── STATUS BADGE ── */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.35rem 0.9rem;
-      border-radius: 100px;
-      background: rgba(110, 231, 183, 0.09);
-      border: 1px solid rgba(110, 231, 183, 0.22);
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--mint);
-      margin-bottom: 1.5rem;
-    }
-    .badge-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--emerald-light);
-      animation: blink 2.2s ease-in-out infinite;
-    }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.25; }
-    }
-
-    /* ── 404 NUMERAL ── */
-    .num404 {
-      font-family: 'Playfair Display', serif;
-      font-size: 6.5rem;
-      font-weight: 900;
-      line-height: 1;
-      background: linear-gradient(155deg, var(--emerald-light) 25%, var(--mint) 85%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 0.875rem;
-    }
-
-    /* ── COPY ── */
-    .headline {
-      font-size: 1.7rem;
-      font-weight: 700;
-      line-height: 1.32;
-      color: var(--white);
-      margin-bottom: 0.875rem;
-    }
-    .headline .hl { color: var(--emerald-light); }
-
-    .body-copy {
-      font-size: 0.975rem;
-      color: rgba(255, 255, 255, 0.52);
-      line-height: 1.76;
-      margin-bottom: 2.25rem;
-    }
-
-    /* ── BUTTONS ── */
-    .btn-row {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.875rem 1.875rem;
-      background: linear-gradient(135deg, var(--emerald), var(--emerald-mid));
-      color: var(--white);
-      text-decoration: none;
-      border-radius: 14px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      letter-spacing: 0.02em;
-      box-shadow: 0 4px 22px rgba(5, 150, 105, 0.42);
-      transition: transform 0.28s ease, box-shadow 0.28s ease;
-    }
-    .btn-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 32px rgba(5, 150, 105, 0.54);
-    }
-
-    .btn-ghost {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.875rem 1.5rem;
-      color: rgba(255, 255, 255, 0.55);
-      text-decoration: none;
-      border-radius: 14px;
-      font-weight: 500;
-      font-size: 0.9rem;
-      border: 1px solid rgba(255, 255, 255, 0.11);
-      transition: color 0.22s, border-color 0.22s;
-    }
-    .btn-ghost:hover {
-      color: var(--mint);
-      border-color: var(--glass-border);
-    }
-
-    /* ── HINT LINE ── */
-    .hint {
-      margin-top: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      color: rgba(255, 255, 255, 0.32);
-      font-size: 0.82rem;
-    }
-
-    /* ── RIGHT: ILLUSTRATION ── */
-    .illustration {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      min-height: 500px;
-    }
-
-    /* Expanding pulse rings (centered on plate) */
-    .pulse {
-      position: absolute;
-      top: 50%; left: 50%;
-      border-radius: 50%;
-      border: 1px solid rgba(110, 231, 183, 0.1);
-      transform: translate(-50%, -50%);
-      animation: pulse 4.5s ease-in-out infinite;
-    }
-    .pulse:nth-child(1) { width: 320px; height: 320px; animation-delay: 0s; }
-    .pulse:nth-child(2) { width: 400px; height: 400px; animation-delay: 1.5s; opacity: 0.6; }
-    .pulse:nth-child(3) { width: 480px; height: 480px; animation-delay: 3s;   opacity: 0.3; }
-
-    @keyframes pulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: inherit; }
-      50%       { transform: translate(-50%, -50%) scale(1.05); opacity: 0.06; }
-    }
-
-    /* ── FLOATING VEGETABLES ── */
-    .veg {
-      position: absolute;
-      font-size: 2.1rem;
-      pointer-events: none;
-      user-select: none;
-      animation: floatVeg var(--d) ease-in-out infinite;
-      animation-delay: var(--dl);
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45));
-    }
-    @keyframes floatVeg {
-      0%, 100% { transform: translateY(0)     rotate(var(--r0)); }
-      50%       { transform: translateY(-20px) rotate(var(--r1)); }
-    }
-
-    .v1 { top: 4%;    left: 8%;   --d:4.3s; --dl:0s;   --r0:-6deg; --r1: 9deg;  font-size:2.5rem; }
-    .v2 { top: 2%;    right: 2%;  --d:3.9s; --dl:.7s;  --r0: 9deg; --r1:-5deg;  font-size:1.9rem; }
-    .v3 { top: 42%;   left: -2%;  --d:5.2s; --dl:1.3s; --r0:-9deg; --r1:13deg;  font-size:2rem;   }
-    .v4 { bottom: 8%; left: 4%;   --d:4.7s; --dl:.35s; --r0: 6deg; --r1:-11deg; font-size:2.2rem; }
-    .v5 { bottom: 3%; right: 3%;  --d:3.7s; --dl:1.9s; --r0:-13deg;--r1: 7deg;  font-size:2rem;   }
-    .v6 { top: 36%;   right: -1%; --d:4.9s; --dl:.95s; --r0: 7deg; --r1:-6deg;  font-size:1.85rem;}
-    .v7 { bottom:35%; left: -1%;  --d:4.1s; --dl:2.4s; --r0:-4deg; --r1:16deg;  font-size:1.75rem;}
-
-    /* ── 4 [PLATE] 4 GROUP ── */
-    .four-group {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .big4 {
-      font-family: 'Playfair Display', serif;
-      font-size: 185px;
-      font-weight: 900;
-      line-height: 1;
-      background: linear-gradient(165deg, var(--emerald-light) 20%, var(--mint) 80%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      filter: drop-shadow(0 0 45px rgba(52, 211, 153, 0.22));
-      user-select: none;
-    }
-
-    /* ── PLATE (SIGNATURE ELEMENT) ── */
-    /*
-     * The dinner plate styled as a speech bubble:
-     * a glass-morphism circle with a dashed inner rim (like crockery decoration),
-     * a 🍽️ + italic "OOPS!" inside, and a curved SVG tail —
-     * tying the 404 concept directly to meal planning.
-     */
-    .plate {
-      position: relative;
-      width: 262px;
-      height: 262px;
-      flex-shrink: 0;
-    }
-
-    .plate-ring {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.055);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 3px solid var(--emerald-light);
-      box-shadow:
-        0 0 0 8px rgba(52, 211, 153, 0.06),
-        0 0 70px rgba(52, 211, 153, 0.22),
-        inset 0 0 40px rgba(16, 185, 129, 0.09);
-      animation: glowPulse 3.2s ease-in-out infinite;
-    }
-
-    @keyframes glowPulse {
-      0%, 100% {
-        box-shadow: 0 0 0 8px  rgba(52,211,153,0.06),
-                    0 0 70px   rgba(52,211,153,0.22),
-                    inset 0 0 40px rgba(16,185,129,0.09);
-      }
-      50% {
-        box-shadow: 0 0 0 14px rgba(52,211,153,0.10),
-                    0 0 90px   rgba(52,211,153,0.34),
-                    inset 0 0 55px rgba(16,185,129,0.15);
-      }
-    }
-
-    /* Dashed inner rim — the crockery detail */
-    .plate-rim {
-      position: absolute;
-      inset: 18px;
-      border-radius: 50%;
-      border: 1.5px dashed rgba(110, 231, 183, 0.32);
-    }
-
-    .plate-body {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-    }
-
-    .plate-icon   { font-size: 2.3rem; line-height: 1; }
-
-    .oops-text {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: 2.1rem;
-      font-weight: 900;
-      color: var(--mint);
-      text-shadow: 0 0 32px rgba(110, 231, 183, 0.55);
-      letter-spacing: -0.01em;
-      line-height: 1.1;
-    }
-
-    .plate-sub {
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(110, 231, 183, 0.48);
-      font-weight: 600;
-    }
-
-    /* Speech-bubble tail — SVG arc below-right of plate */
-    .plate-tail {
-      position: absolute;
-      bottom: -38px;
-      right: 38px;
-      pointer-events: none;
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      background: rgba(255, 255, 255, 0.025);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(110, 231, 183, 0.07);
-      padding: 1.25rem 3.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    footer a, footer span {
-      font-size: 0.78rem;
-      color: rgba(255, 255, 255, 0.28);
-      text-decoration: none;
-      transition: color 0.22s;
-    }
-    footer a:hover { color: var(--mint); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 960px) {
-      nav  { padding: 1rem 1.5rem; }
-      main {
-        grid-template-columns: 1fr;
-        padding: 2.5rem 1.5rem;
-        gap: 2.5rem;
-      }
-      .illustration { order: -1; min-height: 380px; }
-      .card { max-width: 100%; padding: 2.5rem 2rem; }
-      .big4 { font-size: 120px; }
-      .plate { width: 200px; height: 200px; }
-      .plate-rim { inset: 14px; }
-      .oops-text { font-size: 1.6rem; }
-      .plate-icon { font-size: 1.8rem; }
-      footer { padding: 1rem 1.5rem; }
-      .pulse:nth-child(1) { width: 240px; height: 240px; }
-      .pulse:nth-child(2) { width: 300px; height: 300px; }
-      .pulse:nth-child(3) { width: 360px; height: 360px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .veg, .plate-ring, .pulse, .badge-dot { animation: none !important; }
-    }
-  </style>
-</head>
-<body>
-
-<!-- Ambient depth layers -->
-<canvas id="ai-canvas"></canvas>
-<div class="orb orb-tl"></div>
-<div class="orb orb-bl"></div>
-
-<div class="page">
-
-  <!-- ── NAV ── -->
-  <nav>
-    <a href="#" class="logo">
-      <div class="logo-badge">🌿</div>
-      Nutri<span class="ai">AI</span>
-    </a>
-    <ul class="nav-links">
-      <li><a href="#">Home</a></li>
-      <li><a href="#">Meal Plans</a></li>
-      <li><a href="#">Contact Us</a></li>
-    </ul>
-  </nav>
-
-  <!-- ── MAIN ── -->
-  <main>
-
-    <!-- LEFT: content card -->
-    <div class="card">
-      <div class="badge">
-        <div class="badge-dot"></div>
-        Error 404
-      </div>
-
-      <h1 class="num404">404</h1>
-
-      <h2 class="headline">
-        <span class="hl">Oops!</span> This meal isn't on the menu.
-      </h2>
-
-      <p class="body-copy">
-        Looks like you've wandered off the recipe. The page you were looking
-        for has gone missing — but our AI can still whip up something
-        great for you.
-      </p>
-
-      <div class="btn-row">
-        <a href="#" class="btn-primary">
-          <!-- home icon -->
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-               stroke-linejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
-          Back to Home
-        </a>
-        <a href="#" class="btn-ghost">
-          <!-- search icon -->
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round"
-               stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-          </svg>
-          Explore Recipes
-        </a>
-      </div>
-
-      <div class="hint">
-        <!-- curved arrow -->
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-             stroke-linejoin="round" style="opacity:.5">
-          <path d="M9 14 4 9l5-5"/>
-          <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>
-        </svg>
-        Don't worry — fresh recipes and meal plans are waiting for you!
-      </div>
-    </div>
-
-    <!-- RIGHT: illustration -->
-    <div class="illustration">
-
-      <!-- Ambient pulse rings (centred on the plate) -->
-      <div class="pulse"></div>
-      <div class="pulse"></div>
-      <div class="pulse"></div>
-
-      <!-- Floating vegetables -->
-      <div class="veg v1">🥑</div>
-      <div class="veg v2">🥕</div>
-      <div class="veg v3">🥦</div>
-      <div class="veg v4">🍅</div>
-      <div class="veg v5">🌽</div>
-      <div class="veg v6">🫑</div>
-      <div class="veg v7">🧅</div>
-
-      <!-- 4 [PLATE] 4 -->
-      <div class="four-group">
-
-        <span class="big4">4</span>
-
-        <!-- ★ SIGNATURE ELEMENT: dinner plate as speech bubble ★ -->
-        <div class="plate">
-          <div class="plate-ring"></div>
-          <div class="plate-rim"></div>
-          <div class="plate-body">
-            <div class="plate-icon">🍽️</div>
-            <div class="oops-text">OOPS!</div>
-            <div class="plate-sub">Page Not Found</div>
-          </div>
-          <!-- speech-bubble tail -->
-          <div class="plate-tail">
-            <svg width="58" height="46" viewBox="0 0 58 46" fill="none"
-                 xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 5 Q22 30 54 42"
-                    stroke="#34d399" stroke-width="2.5"
-                    stroke-linecap="round" opacity="0.65"/>
-              <circle cx="54" cy="42" r="3.5"
-                      fill="#34d399" opacity="0.5"/>
-            </svg>
           </div>
         </div>
 
-        <span class="big4">4</span>
+        {/* RIGHT: JSX Illustration */}
+        <div className="w-full lg:w-1/2 order-1 lg:order-2 flex items-center justify-center min-h-[400px] relative" aria-hidden="true">
+          
+          {/* Ambient Pulse Rings */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-emerald-500/20 animate-[ping_4s_cubic-bezier(0,0,0.2,1)_infinite] motion-reduce:animate-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full border border-emerald-500/10 animate-[ping_4s_cubic-bezier(0,0,0.2,1)_1s_infinite] motion-reduce:animate-none" />
+          
+          {/* Floating Food Emojis */}
+          {VEGETABLES.map((veg, i) => (
+            <div 
+              key={i}
+              className="absolute text-4xl select-none pointer-events-none filter drop-shadow-xl animate-bounce motion-reduce:animate-none"
+              style={{
+                top: veg.top, bottom: veg.bottom, left: veg.left, right: veg.right,
+                animationDuration: veg.duration,
+                animationDelay: veg.delay
+              }}
+            >
+              {veg.emoji}
+            </div>
+          ))}
 
-      </div>
+          {/* 4 [PLATE] 4 */}
+          <div className="flex items-center gap-2 sm:gap-6 relative z-10">
+            
+            <span className="text-[120px] sm:text-[180px] font-black leading-none bg-gradient-to-br from-emerald-300 to-emerald-600 text-transparent bg-clip-text drop-shadow-[0_0_30px_rgba(52,211,153,0.2)] select-none">
+              4
+            </span>
+
+            {/* Glass Plate Container */}
+            <div className="relative w-[160px] h-[160px] sm:w-[240px] sm:h-[240px] rounded-full bg-white/5 backdrop-blur-xl border-4 border-emerald-400 shadow-[0_0_50px_rgba(16,185,129,0.3)_inset_0_0_30px_rgba(16,185,129,0.1)] flex flex-col items-center justify-center animate-[pulse_3s_ease-in-out_infinite] motion-reduce:animate-none">
+              {/* Inner Dashed Rim */}
+              <div className="absolute inset-4 sm:inset-6 rounded-full border-2 border-dashed border-emerald-400/40" />
+              
+              <div className="relative z-10 flex flex-col items-center justify-center gap-1">
+                <span className="text-3xl sm:text-5xl">🍽️</span>
+                <span className="font-serif italic font-black text-2xl sm:text-4xl text-emerald-300 tracking-tighter drop-shadow-[0_0_15px_rgba(110,231,183,0.5)]">OOPS!</span>
+                <span className="text-[10px] sm:text-xs font-bold tracking-widest text-emerald-400/70 uppercase">Not Found</span>
+              </div>
+            </div>
+
+            <span className="text-[120px] sm:text-[180px] font-black leading-none bg-gradient-to-br from-emerald-300 to-emerald-600 text-transparent bg-clip-text drop-shadow-[0_0_30px_rgba(52,211,153,0.2)] select-none">
+              4
+            </span>
+            
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="w-full py-6 px-8 border-t border-white/5 bg-white/5 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10 text-xs text-slate-400">
+        <p>© 2026 AI Meal Planner</p>
+        <p className="font-medium tracking-wide">Healthy Eating • Personalized Nutrition</p>
+      </footer>
     </div>
-
-  </main>
-
-  <!-- ── FOOTER ── -->
-  <footer>
-    <a href="#">Privacy Policy</a>
-    <span>© 2024 NutriAI — Eat Smart, Live Well</span>
-    <a href="#">Terms of Service</a>
-  </footer>
-
-</div><!-- /page -->
-
-<script>
-  /* ─────────────────────────────────────────
-   * AI PARTICLE SYSTEM
-   * Dots float upward and connect when close,
-   * suggesting an intelligent network — the "AI"
-   * in NutriAI made visible.
-   * ───────────────────────────────────────── */
-  const canvas = document.getElementById('ai-canvas');
-  const ctx    = canvas.getContext('2d');
-
-  function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  const TOTAL = 80;
-  const LINK_DIST = 95;
-  const particles = [];
-
-  class Dot {
-    constructor(spreadY) {
-      this.reset(spreadY);
-    }
-    reset(spreadY = false) {
-      this.x     = Math.random() * canvas.width;
-      this.y     = spreadY ? Math.random() * canvas.height : canvas.height + 8;
-      this.r     = Math.random() * 1.8 + 0.3;
-      this.vx    = (Math.random() - 0.5) * 0.32;
-      this.vy    = -(Math.random() * 0.52 + 0.18);
-      this.alpha = Math.random() * 0.55 + 0.08;
-      this.fade  = Math.random() * 0.0007 + 0.0003;
-      this.mint  = Math.random() > 0.45;   // mint vs emerald
-    }
-    tick() {
-      this.x     += this.vx;
-      this.y     += this.vy;
-      this.alpha -= this.fade;
-      if (this.y < -8 || this.alpha <= 0) this.reset();
-    }
-    draw() {
-      ctx.save();
-      ctx.globalAlpha = this.alpha;
-      ctx.fillStyle   = this.mint ? '#6ee7b7' : '#10b981';
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  for (let i = 0; i < TOTAL; i++) particles.push(new Dot(true));
-
-  function connect() {
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const d  = Math.sqrt(dx * dx + dy * dy);
-        if (d < LINK_DIST) {
-          ctx.save();
-          ctx.globalAlpha = (1 - d / LINK_DIST) * 0.13;
-          ctx.strokeStyle = '#10b981';
-          ctx.lineWidth   = 0.55;
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-          ctx.restore();
-        }
-      }
-    }
-  }
-
-  function loop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => { p.tick(); p.draw(); });
-    connect();
-    requestAnimationFrame(loop);
-  }
-
-  // Respect reduced-motion preference
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    loop();
-  }
-</script>
-
-</body>
-</html>
+  );
+}
