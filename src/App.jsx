@@ -23,7 +23,8 @@ function App() {
           <Route path="/meal/:id" element={<MealDetails />} />
           <Route path="/grocery-list" element={<GroceryList />} />
           {/* Default to Login page for now */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+<Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </div>
