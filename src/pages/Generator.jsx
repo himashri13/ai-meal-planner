@@ -1,40 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Loader2, ArrowLeft, RefreshCw, Bookmark, ShoppingCart, Utensils, Zap, ShieldCheck, Droplets } from 'lucide-react';
+import { Sparkles, Loader2, ArrowLeft, RefreshCw, Bookmark, ShoppingCart, Utensils, Zap, ShieldCheck, Droplets, Clock, Users } from 'lucide-react';
 import Button from '../components/ui/Button';
 import MultiSelectPill from '../components/ui/MultiSelectPill';
+import Input from '../components/ui/Input';
 import GeneratorMealCard from '../components/generator/GeneratorMealCard';
 import AiInsightsCard from '../components/generator/AiInsightsCard';
 import ReplaceMealModal from '../components/generator/ReplaceMealModal';
-import { generateMealPlan } from '../services/mockMealService';
+import { getMealAlternatives, swapMeal } from '../services/mockMealService';
+import { generateMealPlan } from '../services/aiPersonalizationService';
+import { CUISINE_TYPES, COOKING_TIMES } from '../constants/profileConstants';
 
 export default function Generator() {
   const navigate = useNavigate();
-  // State: 'form', 'loading', 'results', 'error'
   const [generationState, setGenerationState] = useState('form'); 
   const [results, setResults] = useState(null);
   const [swappingMealId, setSwappingMealId] = useState(null);
 
   const { register, watch, setValue, handleSubmit, getValues } = useForm({
     defaultValues: {
-      goal: 'lose',
+      cuisines: ['Indian', 'South Indian'],
       cookingTime: '30',
-      budget: 'moderate',
-      cuisines: ['Indian', 'Asian'],
-      mealsToInclude: ['Breakfast', 'Lunch', 'Dinner', 'Snacks'],
-      priorities: []
+      mealsToInclude: ['Breakfast', 'Lunch', 'Dinner'],
+      servings: 2
     }
   });
 
   const watchCuisines = watch('cuisines');
   const watchMeals = watch('mealsToInclude');
-  const watchPriorities = watch('priorities');
 
   const onSubmit = async (data) => {
     setGenerationState('loading');
     try {
-      const generatedData = await generateMealPlan(data);
+      const userProfile = JSON.parse(localStorage.getItem('ai_meal_planner_profile') || '{}');
+      
+      const mealGenerationOptions = {
+        cuisines: data.cuisines,
+        cookingTime: data.cookingTime,
+        mealsPerDay: data.mealsToInclude.length,
+        servings: data.servings
+      };
+
+      // Save temp preferences
+      localStorage.setItem('mealGenerationOptions', JSON.stringify(mealGenerationOptions));
+
+      const generatedData = await generateMealPlan(userProfile, mealGenerationOptions);
       setResults(generatedData);
       setGenerationState('results');
     } catch (error) {
@@ -59,7 +70,7 @@ export default function Generator() {
         acc.fat += m.fat;
         acc.fiber += m.fiber;
         return acc;
-      }, { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, water: prev.summary.water });
+      }, { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, water: prev.summary?.water || 0 });
 
       return { summary: newSummary, meals: updatedMeals };
     });
@@ -92,10 +103,10 @@ export default function Generator() {
           </button>
           
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-            <Sparkles className="text-wellness-200" /> AI Meal Generator
+            <Sparkles className="text-wellness-200" /> Meal Plan Settings
           </h1>
           <p className="text-wellness-100 text-sm leading-relaxed max-w-lg">
-            Override your default profile to generate a highly customized daily meal plan on the fly.
+            Tell us what you're craving today. These temporary options won't permanently change your profile.
           </p>
         </div>
       </div>
@@ -118,7 +129,7 @@ export default function Generator() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto">
             
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"><Utensils size={18}/> Meals to Include</h2>
+              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"><Utensils size={18}/> Meals per Day</h2>
               <div className="flex flex-wrap gap-2">
                 {['Breakfast', 'Lunch', 'Dinner', 'Snacks'].map(meal => (
                   <MultiSelectPill
@@ -135,19 +146,23 @@ export default function Generator() {
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"><Zap size={18}/> Primary Goal</h2>
-              {renderRadioGroup('goal', [
-                { value: 'lose', label: 'Lose Weight' },
-                { value: 'gain', label: 'Gain Weight' },
-                { value: 'build', label: 'Build Muscle' },
-                { value: 'maintain', label: 'Maintain Weight' },
-              ])}
+              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"><Users size={18}/> Servings</h2>
+              <div className="max-w-xs">
+                 <Input 
+                  id="servings" 
+                  type="number" 
+                  placeholder="2"
+                  min="1"
+                  max="10"
+                  {...register("servings", { valueAsNumber: true })} 
+                />
+              </div>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4">Cuisines</h2>
+              <h2 className="text-lg font-semibold text-slate-800 mb-4">Cuisines Options</h2>
               <div className="flex flex-wrap gap-2">
-                {['Indian', 'South Indian', 'Punjabi', 'Italian', 'Mexican', 'Asian', 'Mediterranean'].map(cuisine => (
+                {CUISINE_TYPES.map(cuisine => (
                   <MultiSelectPill
                     key={cuisine}
                     label={cuisine}
@@ -162,41 +177,8 @@ export default function Generator() {
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"><ShieldCheck size={18}/> Priorities</h2>
-              <div className="flex flex-wrap gap-2">
-                {['High Protein', 'Low Carb', 'Quick Recipes', 'Budget Friendly', 'High Fiber'].map(priority => (
-                  <MultiSelectPill
-                    key={priority}
-                    label={priority}
-                    selected={watchPriorities.includes(priority)}
-                    onClick={() => {
-                      const newPriorities = watchPriorities.includes(priority) ? watchPriorities.filter(p => p !== priority) : [...watchPriorities, priority];
-                      setValue('priorities', newPriorities);
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <h2 className="text-base font-semibold text-slate-800 mb-4">Cooking Time</h2>
-                {renderRadioGroup('cookingTime', [
-                  { value: '15', label: '< 15 mins' },
-                  { value: '30', label: '< 30 mins' },
-                  { value: '60', label: '< 1 hour' },
-                  { value: 'any', label: 'Any time' },
-                ])}
-              </div>
-              
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <h2 className="text-base font-semibold text-slate-800 mb-4">Budget</h2>
-                {renderRadioGroup('budget', [
-                  { value: 'strict', label: 'Strict' },
-                  { value: 'moderate', label: 'Moderate' },
-                  { value: 'premium', label: 'Premium' },
-                ])}
-              </div>
+               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"><Clock size={18}/> Cooking Time</h2>
+                {renderRadioGroup('cookingTime', COOKING_TIMES)}
             </div>
 
             <div className="mt-8 flex justify-end">
@@ -212,7 +194,7 @@ export default function Generator() {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500 max-w-2xl mx-auto">
             <Loader2 size={48} className="text-wellness-500 animate-spin mb-6" />
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Crafting your perfect menu...</h2>
-            <p className="text-slate-500 max-w-md">Our AI is fetching the best Indian recipes, balancing macros, and aligning with your time constraints.</p>
+            <p className="text-slate-500 max-w-md">Our AI is fetching the best recipes, balancing macros, and aligning with your time constraints and strict profile settings.</p>
           </div>
         )}
 
@@ -248,10 +230,12 @@ export default function Generator() {
                       <div className="text-xs text-green-600 font-medium mb-1">Fiber</div>
                       <div className="text-xl font-bold text-slate-800">{results.summary.fiber}g</div>
                     </div>
-                    <div className="bg-cyan-50 rounded-xl p-3 border border-cyan-100">
-                      <div className="text-xs text-cyan-600 font-medium mb-1 flex items-center justify-center gap-1"><Droplets size={12}/> Water</div>
-                      <div className="text-xl font-bold text-slate-800">{results.summary.water}L</div>
-                    </div>
+                    {results.summary.water && (
+                      <div className="bg-cyan-50 rounded-xl p-3 border border-cyan-100">
+                        <div className="text-xs text-cyan-600 font-medium mb-1 flex items-center justify-center gap-1"><Droplets size={12}/> Water</div>
+                        <div className="text-xl font-bold text-slate-800">{results.summary.water}L</div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -266,7 +250,7 @@ export default function Generator() {
                     <ShoppingCart size={18} /> Add All to Grocery
                   </button>
                   <button onClick={() => setGenerationState('form')} className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
-                    <RefreshCw size={18} /> Start Over
+                    <RefreshCw size={18} /> Change Preferences
                   </button>
                 </div>
               </div>
@@ -277,13 +261,13 @@ export default function Generator() {
                 {/* Mobile Actions (Visible only on small screens) */}
                 <div className="flex lg:hidden items-center gap-2 overflow-x-auto pb-2 hide-scrollbar">
                   <button onClick={() => alert("Plan Saved!")} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-wellness-600 hover:bg-wellness-700 rounded-xl transition-colors">
-                    <Bookmark size={16} /> Save Plan
+                    <Bookmark size={16} /> Save
                   </button>
                   <button onClick={() => navigate('/grocery-list')} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 text-sm font-medium text-wellness-700 bg-wellness-50 hover:bg-wellness-100 rounded-xl transition-colors border border-wellness-200">
-                    <ShoppingCart size={16} /> Add to Grocery
+                    <ShoppingCart size={16} /> Grocery
                   </button>
                   <button onClick={() => setGenerationState('form')} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
-                    <RefreshCw size={16} /> Start Over
+                    <RefreshCw size={16} /> Change Settings
                   </button>
                 </div>
 

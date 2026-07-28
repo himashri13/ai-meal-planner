@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Dumbbell, ChefHat, RefreshCw, Bookmark, ArrowRight, Tag } from 'lucide-react';
+import { Clock, Dumbbell, ChefHat, RefreshCw, Bookmark, ArrowRight, Tag, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function GeneratorMealCard({ meal, onReplace, isReplacing }) {
@@ -37,9 +37,16 @@ export default function GeneratorMealCard({ meal, onReplace, isReplacing }) {
           <div>
             <div className="flex items-start justify-between mb-1">
               <h3 className="font-bold text-lg text-slate-800 leading-tight">{meal.mealName}</h3>
-              <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-full whitespace-nowrap ml-2">
-                {meal.cuisine}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-full whitespace-nowrap">
+                  {meal.cuisine}
+                </span>
+                {meal.confidenceScore && (
+                  <span className="text-xs font-bold bg-wellness-600 text-white px-2 py-1 rounded-full whitespace-nowrap flex items-center gap-1 shadow-sm">
+                    <Sparkles size={12} /> {meal.confidenceScore}% Match
+                  </span>
+                )}
+              </div>
             </div>
             
             <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3">
@@ -48,13 +55,37 @@ export default function GeneratorMealCard({ meal, onReplace, isReplacing }) {
               <span className="flex items-center gap-1"><ChefHat size={14} /> {meal.difficulty}</span>
             </div>
 
-            <div className="flex flex-wrap gap-1.5 mb-4">
+          <div className="flex flex-wrap gap-1.5 mb-4">
               {meal.tags.map(tag => (
                 <span key={tag} className="text-[10px] font-medium bg-wellness-50 text-wellness-700 px-2 py-0.5 rounded border border-wellness-100 uppercase tracking-wider">
                   {tag}
                 </span>
               ))}
             </div>
+
+            {meal.aiReasoning && (
+              <div className="bg-wellness-50/50 rounded-xl p-3 mb-4 border border-wellness-100 flex flex-col gap-2">
+                {Array.isArray(meal.aiReasoning) ? (
+                  meal.aiReasoning.map((reason, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <div className="w-4 h-4 rounded-full bg-wellness-200 text-wellness-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-[10px] font-bold">✓</span>
+                      </div>
+                      <p className="text-xs text-slate-700 leading-tight font-medium">
+                        {reason}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex gap-2 items-start">
+                    <Sparkles size={16} className="text-wellness-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      {meal.aiReasoning}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-between gap-2 border-t border-slate-50 pt-3">

@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom';
 
 import { 
   getGroceryList, 
-  scaleQuantities, 
+  updateServings,
   calculateTotalCost, 
   calculateProgress, 
-  groupByCategory 
+  groupByCategory,
+  filterItems
 } from '../services/groceryService';
 
 import GroceryHeader from '../components/grocery/GroceryHeader';
@@ -40,17 +41,16 @@ export default function GroceryList() {
   }, []);
 
   // 2. Scale quantities based on servings
+  // Wait, updateServings requires oldServings and newServings, but items is our source of truth.
+  // Actually, we can just track the previous servings value, or more simply, 
+  // calculate the scaling dynamically from 1 to current servings using the base items fetched.
   const scaledItems = useMemo(() => {
-    return scaleQuantities(items, servings);
+    return updateServings(items, 1, servings);
   }, [items, servings]);
 
   // 3. Filter items by search query
   const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return scaledItems;
-    return scaledItems.filter(item => 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    return filterItems(scaledItems, searchQuery);
   }, [scaledItems, searchQuery]);
 
   // 4. Calculate Progress & Cost on the filtered/scaled items
