@@ -1,16 +1,118 @@
-# React + Vite
+# 🥗 AI Meal Planner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **A modern AI-inspired meal planning application built with React (JavaScript) and Tailwind CSS that generates personalized meal plans based on health goals, dietary preferences, cuisine, lifestyle, and cooking preferences.**
 
-Currently, two official plugins are available:
+<p align="center">
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+🚀 <a href="https://ai-meal-planner-inky.vercel.app/login"><strong>Live Demo</strong></a> •
+💻 <a href="https://github.com/himashri13/ai-meal-planner"><strong>GitHub Repository</strong></a>
 
-## React Compiler
+</p>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🌟 Overview
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+AI Meal Planner is a frontend application that demonstrates how AI-inspired workflows can help users build healthier eating habits.
+
+Users can:
+
+- Create a personalized nutrition profile
+- Generate meal plans
+- View meal details
+- Replace meals with smarter alternatives
+- Manage their nutrition journey through a clean and responsive interface
+
+> **Current Version:** Frontend MVP using mock JSON data.
+
+---
+
+## ✨ Features
+
+### ✅ Completed
+
+- 🔐 Authentication UI
+- 👤 User Onboarding
+- 📊 Personalized Dashboard
+- ⚙️ Profile Personalization
+- 🤖 AI Meal Generator
+- 🍽 Meal Details
+- 🔄 Replace Meal
+- 📱 Responsive Design
+- ♻️ Reusable Components
+
+### 🚧 Coming Soon
+
+- 🛒 Smart Grocery List
+- 📅 Weekly Meal Planner
+- 📈 Nutrition Analytics
+- ❤️ Favorites
+- 🔥 Streak Tracking
+- 🤖 AI API Integration
+- 🗄 Backend (Node.js + PostgreSQL)
+
+---
+
+## 🛠 Tech Stack
+
+| Category | Technology |
+|-----------|------------|
+| Frontend | React |
+| Language | JavaScript |
+| Styling | Tailwind CSS |
+| Routing | React Router |
+| Icons | Lucide React |
+| Build Tool | Vite |
+| Data | Mock JSON |
+
+---
+
+## 🚀 Getting Started
+
+### Clone the repository
+
+```bash
+git clone YOUR_GITHUB_URL
+```
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Start the development server
+
+```bash
+npm run dev
+```
+
+The application will be available at:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🗺 Roadmap
+
+- [x] Authentication
+- [x] User Onboarding
+- [x] Dashboard
+- [x] Personalization
+- [x] AI Meal Generator
+- [x] Meal Details
+- [x] Replace Meal
+- [ ] Smart Grocery List
+- [ ] Weekly Meal Planner
+- [ ] Nutrition Analytics
+- [ ] Backend API
+- [ ] AI Integration
+- [ ] Deployment Improvements
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
