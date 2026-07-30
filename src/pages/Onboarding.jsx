@@ -1,96 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Target, Activity, Leaf, Droplets, Heart } from 'lucide-react';
-import Input from '../components/ui/Input';
-import Button from '../components/ui/Button';
-import RadioCard from '../components/ui/RadioCard';
-import ProgressBar from '../components/ui/ProgressBar';
-import MultiSelectPill from '../components/ui/MultiSelectPill';
+import { Target, Activity, Leaf } from 'lucide-react';
+
+import { useProfile } from '../hooks/useProfile';
 import { calculateWaterIntake } from '../services/recommendationService';
+import { calculateAge, convertToCm } from '../utils/mathUtils';
+import { onboardingSchema } from '../schemas/profileSchema';
 import { 
   ACTIVITY_LEVELS, GOALS, FOOD_PREFERENCES, ALLERGIES, INGREDIENT_DISLIKES,
   LIFESTYLES, COOKING_HABITS, BUDGETS, HEALTH_CONDITIONS
 } from '../constants/profileConstants';
 
-// Helper to calculate age from DOB
-const calculateAge = (dobString) => {
-  if (!dobString) return '';
-  const dob = new Date(dobString);
-  if (isNaN(dob.getTime())) return '';
-  const diffMs = Date.now() - dob.getTime();
-  const ageDt = new Date(diffMs);
-  return Math.abs(ageDt.getUTCFullYear() - 1970);
-};
-
-// Helper to convert Ft/In to cm
-const convertToCm = (ft, inc) => {
-  const feet = parseInt(ft, 10) || 0;
-  const inches = parseInt(inc, 10) || 0;
-  return Math.round((feet * 30.48) + (inches * 2.54));
-};
-
-// 1. Basic Info
-const step1Schema = z.object({
-  fullName: z.string().min(2, "Please enter your full name"),
-  dateOfBirth: z.string().min(1, "Please select your date of birth").refine(val => {
-    const age = calculateAge(val);
-    return age >= 12 && age <= 120;
-  }, { message: "You must be between 12 and 120 years old" }),
-  weight: z.coerce.number().min(30, "Enter weight in kg").max(300, "Enter a valid weight"),
-  heightFt: z.coerce.number().min(1, "Valid feet (1-8)").max(8),
-  heightIn: z.coerce.number().min(0, "Valid inches (0-11)").max(11),
-  gender: z.enum(['male', 'female', 'other'], { errorMap: () => ({ message: "Select a gender" }) }),
-});
-
-// 2. Goal
-const step2Schema = z.object({
-  goal: z.string().min(1, "Please select a goal"),
-});
-
-// 3. Activity Level
-const step3Schema = z.object({
-  activityLevel: z.string().min(1, "Please select an activity level"),
-});
-
-// 4. Food Preference
-const step4Schema = z.object({
-  diet: z.string().min(1, "Please select a food preference"),
-});
-
-// 5. Allergies & Dislikes
-const step5Schema = z.object({
-  allergies: z.array(z.string()).default([]),
-  ingredientDislikes: z.array(z.string()).default([]),
-});
-
-// 6. Water Goal
-const step6Schema = z.object({
-  waterGoal: z.coerce.number().min(0.5, "Must be at least 0.5L").max(8, "Cannot exceed 8L"),
-});
-
-// 7. Advanced Lifestyle
-const step7Schema = z.object({
-  lifestyle: z.string().optional(),
-  cookingHabit: z.string().optional(),
-  budget: z.string().optional(),
-});
-
-// 8. Health Conditions
-const step8Schema = z.object({
-  healthConditions: z.array(z.string()).default([]),
-});
-
-const onboardingSchema = z.intersection(step1Schema, step2Schema)
-  .and(step3Schema).and(step4Schema).and(step5Schema).and(step6Schema)
-  .and(step7Schema).and(step8Schema);
+import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
+import RadioCard from '../components/ui/RadioCard';
+import ProgressBar from '../components/ui/ProgressBar';
+import MultiSelectPill from '../components/ui/MultiSelectPill';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { updateProfile: saveProfileToContext } = useProfile();
 
   const { register, trigger, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(onboardingSchema),
@@ -103,6 +37,7 @@ export default function Onboarding() {
     }
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const formValues = watch();
   const totalSteps = 8;
   
@@ -156,19 +91,16 @@ export default function Onboarding() {
       lifestyle: { activityLevel: data.activityLevel, goal: data.goal, type: data.lifestyle, cookingHabit: data.cookingHabit }
     };
     
-    // Simulate API save
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
     // Save stable profile
-    localStorage.setItem('ai_meal_planner_profile', JSON.stringify(userProfile));
+    await saveProfileToContext(userProfile);
     navigate('/dashboard');
   };
 
   if (isSubmitting) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-wellness-50 p-4">
-        <div className="w-16 h-16 border-4 border-wellness-200 border-t-wellness-600 rounded-full animate-spin mb-6" />
-        <h2 className="text-2xl font-semibold text-slate-800 text-center">Creating your personalized nutrition profile...</h2>
+        <LoadingSpinner />
+        <h2 className="text-2xl font-semibold text-slate-800 text-center mt-6">Creating your personalized nutrition profile...</h2>
       </div>
     );
   }
@@ -177,7 +109,11 @@ export default function Onboarding() {
     <div className="min-h-screen flex flex-col items-center bg-wellness-50 p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl p-6 sm:p-10 mt-10">
         
-        <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+        <ProgressBar 
+          percentage={Math.round((currentStep / totalSteps) * 100)} 
+          label={`Step ${currentStep} of ${totalSteps}`}
+          subLabel={`${Math.round((currentStep / totalSteps) * 100)}% Completed`}
+        />
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8">
           

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 
 export default function SearchBar({ searchQuery, setSearchQuery }) {
   return (
@@ -12,8 +12,16 @@ export default function SearchBar({ searchQuery, setSearchQuery }) {
         placeholder="Search ingredients..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all shadow-sm"
+        className="w-full pl-11 pr-12 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all shadow-sm"
       />
+      {searchQuery && (
+        <button 
+          onClick={() => setSearchQuery('')}
+          className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      )}
     </div>
   );
 }

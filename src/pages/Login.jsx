@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,6 +6,7 @@ import { Heart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
+import { useAuth } from '../hooks/useAuth';
 
 // Define the validation schema
 const loginSchema = z.object({
@@ -17,6 +18,9 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  const { login } = useAuth();
+  const [authError, setAuthError] = useState(null);
+
   const {
     register,
     handleSubmit,
@@ -27,11 +31,15 @@ export default function Login() {
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Login data:", data);
-    setIsSubmitting(false);
-    navigate('/onboarding');
+    setAuthError(null);
+    try {
+      await login(data);
+      navigate('/dashboard');
+    } catch (err) {
+      setAuthError(err.message || "Failed to login");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -41,7 +49,7 @@ export default function Login() {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-wellness-200/40 blur-3xl" aria-hidden="true" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-wellness-300/30 blur-3xl" aria-hidden="true" />
 
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-xl shadow-wellness-900/5 p-8 relative z-10 border border-white/50">
+      <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-xl shadow-wellness-900/5 p-8 relative z-content border border-white/50">
         
         <div className="text-center mb-10">
           <div className="w-16 h-16 bg-gradient-to-br from-wellness-400 to-wellness-600 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg shadow-wellness-500/30">
@@ -51,7 +59,7 @@ export default function Login() {
           <p className="text-slate-500 mt-2 text-sm">Please enter your details to sign in.</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <Input
             id="email"
             label="Email Address"
@@ -71,6 +79,12 @@ export default function Login() {
             {...register("password")}
             error={errors.password?.message}
           />
+          
+          {authError && (
+            <div className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-medium">
+              {authError}
+            </div>
+          )}
 
           <div className="flex items-center justify-between pt-1 pb-4">
             <div className="flex items-center">

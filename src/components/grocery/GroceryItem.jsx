@@ -7,10 +7,10 @@ export default function GroceryItem({ item, onToggle }) {
   return (
     <div 
       onClick={onToggle}
-      className={`group flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 cursor-pointer ${
+      className={`group flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 cursor-pointer select-none ${
         checked 
-          ? 'bg-slate-50 border-slate-200 opacity-60' 
-          : 'bg-white border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:border-emerald-300 hover:shadow-[0_4px_15px_rgba(16,185,129,0.08)] hover:-translate-y-0.5'
+          ? 'bg-slate-50 border-slate-200 opacity-60 hover:opacity-100 hover:bg-slate-100' 
+          : 'bg-white border-slate-200 shadow-sm hover:border-emerald-300 hover:shadow-md hover:-translate-y-0.5'
       }`}
     >
       <div className="flex items-center gap-4">

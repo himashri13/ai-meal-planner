@@ -1,24 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Loader2, ArrowLeft, RefreshCw, Bookmark, ShoppingCart, Utensils, Zap, ShieldCheck, Droplets, Clock, Users } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { Sparkles, Loader2, ArrowLeft, RefreshCw, Bookmark, ShoppingCart, Utensils, ShieldCheck, Droplets, Clock, Users, CheckCircle2 } from 'lucide-react';
+
+import { useProfile } from '../hooks/useProfile';
+import { useMealPlan } from '../hooks/useMealPlan';
+import { CUISINE_TYPES, COOKING_TIMES } from '../constants/profileConstants';
+
 import Button from '../components/ui/Button';
 import MultiSelectPill from '../components/ui/MultiSelectPill';
 import Input from '../components/ui/Input';
+import FormRadioGroup from '../components/ui/FormRadioGroup';
 import GeneratorMealCard from '../components/generator/GeneratorMealCard';
 import AiInsightsCard from '../components/generator/AiInsightsCard';
 import ReplaceMealModal from '../components/generator/ReplaceMealModal';
-import { getMealAlternatives, swapMeal } from '../services/mockMealService';
-import { generateMealPlan } from '../services/aiPersonalizationService';
-import { CUISINE_TYPES, COOKING_TIMES } from '../constants/profileConstants';
+import SkeletonMealCard from '../components/generator/SkeletonMealCard';
 
 export default function Generator() {
   const navigate = useNavigate();
-  const [generationState, setGenerationState] = useState('form'); 
-  const [results, setResults] = useState(null);
+  const { profile } = useProfile();
+  const { results, generationState, generatePlan, swapMeal, resetGenerator } = useMealPlan(profile);
+  
   const [swappingMealId, setSwappingMealId] = useState(null);
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
 
-  const { register, watch, setValue, handleSubmit, getValues } = useForm({
+  const { register, watch, setValue, control, handleSubmit, formState: { isSubmitting } } = useForm({
     defaultValues: {
       cuisines: ['Indian', 'South Indian'],
       cookingTime: '30',
@@ -27,77 +33,39 @@ export default function Generator() {
     }
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchCuisines = watch('cuisines');
   const watchMeals = watch('mealsToInclude');
 
   const onSubmit = async (data) => {
-    setGenerationState('loading');
-    try {
-      const userProfile = JSON.parse(localStorage.getItem('ai_meal_planner_profile') || '{}');
-      
-      const mealGenerationOptions = {
-        cuisines: data.cuisines,
-        cookingTime: data.cookingTime,
-        mealsPerDay: data.mealsToInclude.length,
-        servings: data.servings
-      };
+    const mealGenerationOptions = {
+      cuisines: data.cuisines,
+      cookingTime: data.cookingTime,
+      mealsPerDay: data.mealsToInclude.length,
+      servings: data.servings
+    };
 
-      // Save temp preferences
-      localStorage.setItem('mealGenerationOptions', JSON.stringify(mealGenerationOptions));
-
-      const generatedData = await generateMealPlan(userProfile, mealGenerationOptions);
-      setResults(generatedData);
-      setGenerationState('results');
-    } catch (error) {
-      console.error(error);
-      setGenerationState('error');
-    }
+    await generatePlan(mealGenerationOptions);
+    setShowSuccessBanner(true);
+    setTimeout(() => setShowSuccessBanner(false), 4000);
   };
 
-  const handleSwapClick = (meal) => {
+  const handleSwapClick = useCallback((meal) => {
     setSwappingMealId(meal.id); // open modal
-  };
+  }, []);
 
-  const handleConfirmSwap = (newMeal) => {
-    setResults(prev => {
-      const updatedMeals = prev.meals.map(m => m.id === swappingMealId ? newMeal : m);
-      
-      // Recalculate summary
-      const newSummary = updatedMeals.reduce((acc, m) => {
-        acc.calories += m.calories;
-        acc.protein += m.protein;
-        acc.carbs += m.carbs;
-        acc.fat += m.fat;
-        acc.fiber += m.fiber;
-        return acc;
-      }, { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, water: prev.summary?.water || 0 });
-
-      return { summary: newSummary, meals: updatedMeals };
-    });
+  const handleConfirmSwap = useCallback(async (newMealOptions, currentMeal) => {
+    await swapMeal(currentMeal, newMealOptions);
     setSwappingMealId(null);
-  };
-
-  const renderRadioGroup = (name, options) => (
-    <div className="grid grid-cols-2 gap-3">
-      {options.map(opt => {
-        const isSelected = watch()[name] === opt.value;
-        return (
-          <label key={opt.value} className={`cursor-pointer px-4 py-3 rounded-xl border transition-all ${isSelected ? 'bg-wellness-50 border-wellness-500 text-wellness-800 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-wellness-300'}`}>
-            <input type="radio" value={opt.value} {...register(name)} className="sr-only" />
-            <span className="block font-medium text-sm">{opt.label}</span>
-          </label>
-        );
-      })}
-    </div>
-  );
+  }, [swapMeal]);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <main className="min-h-screen bg-slate-50 pb-24">
       
       {/* Header */}
       <div className="bg-wellness-700 text-white pt-8 pb-16 px-4 relative overflow-hidden">
         <div className="absolute top-[-50%] right-[-10%] w-[60%] h-[150%] rounded-full bg-wellness-600/50 blur-3xl" />
-        <div className="max-w-2xl lg:max-w-4xl mx-auto relative z-10">
+        <div className="max-w-2xl lg:max-w-4xl mx-auto relative z-content">
           <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-wellness-100 hover:text-white transition-colors mb-6 text-sm font-medium">
             <ArrowLeft size={16} /> Back to Dashboard
           </button>
@@ -112,15 +80,19 @@ export default function Generator() {
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-2xl lg:max-w-4xl mx-auto px-4 -mt-8 relative z-20">
+      <div className="max-w-2xl lg:max-w-4xl mx-auto px-4 -mt-8 relative z-nav">
         
         {/* State: ERROR */}
         {generationState === 'error' && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
-            <ShieldCheck size={48} className="text-rose-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
-            <p className="text-slate-500 mb-6">Our AI chef is currently unavailable. Please try again.</p>
-            <Button onClick={() => setGenerationState('form')}>Back to Form</Button>
+          <div className="bg-rose-50 rounded-2xl shadow-sm border border-rose-100 p-12 text-center max-w-2xl mx-auto animate-in fade-in zoom-in-95 duration-500">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+              <ShieldCheck size={32} className="text-rose-500" />
+            </div>
+            <h2 className="text-xl font-bold text-rose-900 mb-2">Oops, something went wrong</h2>
+            <p className="text-rose-700 mb-8 max-w-md mx-auto">Our AI chef encountered an unexpected error while crafting your menu. Please try again.</p>
+            <Button onClick={resetGenerator} variant="primary" className="bg-rose-600 hover:bg-rose-700">
+              Try Again
+            </Button>
           </div>
         )}
 
@@ -128,7 +100,7 @@ export default function Generator() {
         {generationState === 'form' && (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto">
             
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="card border-slate-200 p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"><Utensils size={18}/> Meals per Day</h2>
               <div className="flex flex-wrap gap-2">
                 {['Breakfast', 'Lunch', 'Dinner', 'Snacks'].map(meal => (
@@ -145,7 +117,7 @@ export default function Generator() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="card border-slate-200 p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"><Users size={18}/> Servings</h2>
               <div className="max-w-xs">
                  <Input 
@@ -159,7 +131,7 @@ export default function Generator() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="card border-slate-200 p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4">Cuisines Options</h2>
               <div className="flex flex-wrap gap-2">
                 {CUISINE_TYPES.map(cuisine => (
@@ -176,14 +148,24 @@ export default function Generator() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="card border-slate-200 p-6">
                <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2"><Clock size={18}/> Cooking Time</h2>
-                {renderRadioGroup('cookingTime', COOKING_TIMES)}
+               <FormRadioGroup 
+                 name="cookingTime" 
+                 options={COOKING_TIMES} 
+                 control={control} 
+                 register={register} 
+                 className="grid grid-cols-2 gap-3"
+               />
             </div>
 
             <div className="mt-8 flex justify-end">
-              <Button type="submit" className="w-full sm:w-auto text-lg px-8 py-3">
-                <Sparkles size={20} className="mr-2" /> Generate Meal Plan
+              <Button type="submit" disabled={isSubmitting || generationState === 'loading'} className="w-full sm:w-auto text-lg px-8 py-3 disabled:opacity-70 disabled:cursor-not-allowed">
+                {isSubmitting || generationState === 'loading' ? (
+                   <><Loader2 size={20} className="mr-2 animate-spin" /> Generating...</>
+                ) : (
+                   <><Sparkles size={20} className="mr-2" /> Generate Meal Plan</>
+                )}
               </Button>
             </div>
           </form>
@@ -191,23 +173,44 @@ export default function Generator() {
 
         {/* State: LOADING */}
         {generationState === 'loading' && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500 max-w-2xl mx-auto">
-            <Loader2 size={48} className="text-wellness-500 animate-spin mb-6" />
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">Crafting your perfect menu...</h2>
-            <p className="text-slate-500 max-w-md">Our AI is fetching the best recipes, balancing macros, and aligning with your time constraints and strict profile settings.</p>
+          <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white rounded-2xl border border-slate-100 p-6 h-64 animate-pulse" />
+              <div className="bg-white rounded-2xl border border-slate-100 p-6 h-48 animate-pulse" />
+            </div>
+            <div className="lg:col-span-2 space-y-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="h-8 bg-slate-200 rounded w-48 animate-pulse" />
+              </div>
+              <SkeletonMealCard />
+              <SkeletonMealCard />
+              <SkeletonMealCard />
+            </div>
           </div>
         )}
 
         {/* State: RESULTS */}
         {generationState === 'results' && results && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {showSuccessBanner && (
+              <div 
+                className="mb-6 bg-green-50 text-green-800 p-4 rounded-xl flex items-center justify-center gap-2 border border-green-200 animate-in fade-in slide-in-from-top-4"
+                role="status"
+                aria-live="polite"
+              >
+                <CheckCircle2 size={20} className="text-green-600" />
+                <span className="font-medium">Meal plan generated successfully!</span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               
               {/* Left Column: Summary & Insights */}
               <div className="lg:col-span-1 space-y-6">
                 
                 {/* Daily Summary */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div className="card border-slate-200 p-6">
                   <h2 className="text-lg font-semibold text-slate-800 mb-4">Daily Targets</h2>
                   <div className="grid grid-cols-2 gap-3 text-center">
                     <div className="bg-orange-50 rounded-xl p-3 border border-orange-100">
@@ -249,7 +252,7 @@ export default function Generator() {
                   <button onClick={() => navigate('/grocery-list')} className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-wellness-700 bg-wellness-50 hover:bg-wellness-100 border border-wellness-200 rounded-xl transition-colors">
                     <ShoppingCart size={18} /> Add All to Grocery
                   </button>
-                  <button onClick={() => setGenerationState('form')} className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                  <button onClick={resetGenerator} className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
                     <RefreshCw size={18} /> Change Preferences
                   </button>
                 </div>
@@ -266,19 +269,24 @@ export default function Generator() {
                   <button onClick={() => navigate('/grocery-list')} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 text-sm font-medium text-wellness-700 bg-wellness-50 hover:bg-wellness-100 rounded-xl transition-colors border border-wellness-200">
                     <ShoppingCart size={16} /> Grocery
                   </button>
-                  <button onClick={() => setGenerationState('form')} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                  <button onClick={resetGenerator} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
                     <RefreshCw size={16} /> Change Settings
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-xl font-bold text-slate-800">Your Custom Menu</h2>
-                  <span className="text-sm text-slate-500 font-medium">{results.meals.length} Meals</span>
+                <div className="flex items-center justify-between mb-4 bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl shadow-sm border border-slate-100">
+                  <h2 className="text-lg font-bold text-slate-800">Your Custom Menu</h2>
+                  <span className="text-sm text-slate-500 font-bold bg-slate-100 px-3 py-1 rounded-lg">{results.meals.length} Meals</span>
                 </div>
 
                 {results.meals.length === 0 ? (
-                  <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500">
-                    No meals matched your strict criteria. Try loosening your preferences.
+                  <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500 flex flex-col items-center">
+                     <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                        <Utensils size={32} className="text-slate-300" />
+                     </div>
+                     <h3 className="text-lg font-bold text-slate-800 mb-2">No matches found</h3>
+                     <p className="max-w-sm mx-auto mb-6">We couldn't find any meals that match your strict criteria and temporary settings.</p>
+                     <Button onClick={resetGenerator} variant="outline">Adjust Preferences</Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -304,8 +312,10 @@ export default function Generator() {
         isOpen={!!swappingMealId}
         onClose={() => setSwappingMealId(null)}
         currentMeal={results?.meals?.find(m => m.id === swappingMealId)}
-        onConfirm={handleConfirmSwap}
+        onConfirm={(options) => handleConfirmSwap(options, results?.meals?.find(m => m.id === swappingMealId))}
+        userProfile={profile}
+        mealGenerationOptions={JSON.parse(localStorage.getItem('mealGenerationOptions') || '{}')}
       />
-    </div>
+    </main>
   );
 }

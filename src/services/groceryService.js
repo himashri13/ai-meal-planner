@@ -1,4 +1,4 @@
-import { GROCERY_CATEGORIES } from '../data/groceryMock';
+import { GROCERY_CATEGORIES } from '../api/mocks/groceryMock';
 
 /**
  * Calculates the total estimated cost of all items in the grocery list.
@@ -241,7 +241,7 @@ export const getGroceryStats = (items) => {
  * @returns {Promise<Array>}
  */
 export const getGroceryList = async () => {
-  const { groceryItems } = await import('../data/groceryMock');
+  const { groceryItems } = await import('../api/mocks/groceryMock');
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 600));
   return groceryItems;

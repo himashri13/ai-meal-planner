@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,6 +6,7 @@ import { Leaf, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
+import { useAuth } from '../hooks/useAuth';
 
 const signupSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -24,6 +25,9 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
+  const { signup } = useAuth();
+  const [authError, setAuthError] = useState(null);
+
   const {
     register,
     handleSubmit,
@@ -34,11 +38,15 @@ export default function Signup() {
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Signup data:", data);
-    setIsSubmitting(false);
-    navigate('/onboarding');
+    setAuthError(null);
+    try {
+      await signup(data);
+      navigate('/onboarding');
+    } catch (err) {
+      setAuthError(err.message || "Failed to create account");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -48,7 +56,7 @@ export default function Signup() {
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-wellness-200/40 blur-3xl" aria-hidden="true" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-wellness-300/30 blur-3xl" aria-hidden="true" />
 
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-xl shadow-wellness-900/5 p-8 relative z-10 border border-white/50">
+      <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-xl shadow-wellness-900/5 p-8 relative z-content border border-white/50">
         
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-br from-wellness-400 to-wellness-600 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg shadow-wellness-500/30">
@@ -58,7 +66,7 @@ export default function Signup() {
           <p className="text-slate-500 mt-2 text-sm">Start your wellness journey today.</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <Input
             id="fullName"
             label="Full Name"
@@ -137,6 +145,12 @@ export default function Signup() {
           </div>
           {errors.acceptTerms && (
             <p className="text-sm text-red-500 mt-1" role="alert">{errors.acceptTerms.message}</p>
+          )}
+
+          {authError && (
+            <div className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-medium">
+              {authError}
+            </div>
           )}
 
           <Button type="submit" className="w-full mt-2" isLoading={isSubmitting}>

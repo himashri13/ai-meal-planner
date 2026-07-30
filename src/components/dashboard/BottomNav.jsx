@@ -13,7 +13,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-100 px-6 py-3 flex justify-between items-center md:hidden z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-100 px-6 py-3 flex justify-between items-center md:hidden z-toast">
       {navItems.map((item) => {
         const isActive = location.pathname === item.path || location.hash === item.path;
         const Icon = item.icon;

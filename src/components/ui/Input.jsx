@@ -16,11 +16,11 @@ const Input = React.forwardRef(({ label, id, error, className = '', rightElement
           ref={ref}
           aria-invalid={!!error}
           aria-describedby={error ? errorId : undefined}
-          className={`w-full px-4 py-2.5 rounded-xl border bg-white/50 backdrop-blur-sm transition-all duration-200 outline-none
+          className={`w-full h-12 px-4 rounded-xl border bg-white/50 backdrop-blur-sm transition-all duration-200 outline-none
             ${rightElement ? 'pr-11' : ''}
             ${error 
-              ? 'border-red-300 focus:border-red-400 focus:ring-4 focus:ring-red-100 text-red-900 placeholder-red-300' 
-              : 'border-slate-200 hover:border-wellness-300 focus:border-wellness-500 focus:ring-4 focus:ring-wellness-100 text-slate-900 placeholder-slate-400'
+              ? 'border-red-300 focus:border-red-400 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1 text-red-900 placeholder-red-300' 
+              : 'border-slate-200 hover:border-wellness-300 focus:border-wellness-500 focus-visible:ring-2 focus-visible:ring-wellness-500 focus-visible:ring-offset-1 text-slate-900 placeholder-slate-400'
             }`}
           {...props}
         />
@@ -41,4 +41,4 @@ const Input = React.forwardRef(({ label, id, error, className = '', rightElement
 
 Input.displayName = 'Input';
 
-export default Input;
+export default React.memo(Input);

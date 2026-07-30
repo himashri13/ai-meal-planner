@@ -1,4 +1,3 @@
-import { updateHistoryContext } from './ai/decisionEngine';
 
 export const MEAL_DB = [
   // Breakfasts
@@ -118,43 +117,9 @@ export const MEAL_DB = [
   },
 ];
 
-// generateMealPlan moved to aiPersonalizationService.js
-
-export const swapMeal = async (currentMealId, timeSlot) => {
-  await new Promise(resolve => setTimeout(resolve, 800)); 
-  updateHistoryContext('replace', currentMealId);
-
-  const availableMeals = MEAL_DB.filter(m => m.time === timeSlot && m.id !== currentMealId);
-  if (availableMeals.length === 0) return MEAL_DB.find(m => m.time === timeSlot);
-  return availableMeals[Math.floor(Math.random() * availableMeals.length)];
-};
-
 export const getMealById = async (id) => {
   await new Promise(resolve => setTimeout(resolve, 500)); 
   const meal = MEAL_DB.find(m => m.id === id);
   if (meal) return meal;
   return MEAL_DB[0];
-};
-
-export const getMealAlternatives = async (currentMealId, timeSlot, reason = 'surprise_me') => {
-  await new Promise(resolve => setTimeout(resolve, 800)); 
-  let available = MEAL_DB.filter(m => m.time === timeSlot && m.id !== currentMealId);
-  
-  if (reason === 'need_more_protein') {
-    available = available.sort((a, b) => b.protein - a.protein);
-  } else if (reason === 'want_fewer_calories') {
-    available = available.sort((a, b) => a.calories - b.calories);
-  } else {
-    available = available.sort(() => 0.5 - Math.random());
-  }
-
-  const alternatives = available.slice(0, 4);
-  
-  return alternatives.map(m => {
-    let aiReasoning = "This is a great alternative because it maintains your nutritional goals.";
-    if (reason === 'need_more_protein') aiReasoning = `Better matches your protein goal by offering ${m.protein}g of protein.`;
-    else if (reason === 'want_fewer_calories') aiReasoning = `Lighter option containing only ${m.calories} calories.`;
-    
-    return { ...m, aiReasoning };
-  });
 };

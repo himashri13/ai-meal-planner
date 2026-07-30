@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, ChefHat, RefreshCw, Bookmark, ShoppingCart, Flame, AlertCircle, CheckCircle2, Circle, Share2, Sparkles, Scale, HeartPulse, ShieldCheck, Utensils } from 'lucide-react';
-import { getMealById } from '../services/mockMealService';
+import { ArrowLeft, Clock, Flame, ChefHat, Sparkles, Utensils, Scale, CheckCircle2, Circle, ShoppingCart, Bookmark, RefreshCw, AlertCircle, Share2, ShieldCheck, Zap, HeartPulse } from 'lucide-react';
+
+import { getMealById } from '../api/mealApi';
+
+import LoadingSpinner from '../components/ui/LoadingSpinner';
+import Badge from '../components/ui/Badge';
 
 export default function MealDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [meal, setMeal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [checkedIngredients, setCheckedIngredients] = useState(new Set());
 
   const toggleIngredient = (idx) => {
@@ -24,9 +29,14 @@ export default function MealDetails() {
       setLoading(true);
       try {
         const data = await getMealById(id);
-        setMeal(data);
+        if (!data) {
+          setError("Meal not found");
+        } else {
+          setMeal(data);
+        }
       } catch (e) {
         console.error(e);
+        setError("Network error while fetching meal details.");
       } finally {
         setLoading(false);
       }
@@ -35,24 +45,31 @@ export default function MealDetails() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-wellness-50">
-        <RefreshCw className="animate-spin text-wellness-500 mb-4" size={32} />
-        <p className="text-slate-500 font-medium">Fetching recipe details...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Fetching recipe details..." />;
   }
 
-  if (!meal) {
+  if (error || !meal) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-wellness-50">
-        <p className="text-slate-500">Meal not found.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-wellness-50 p-6 text-center">
+        <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-sm border border-slate-100 flex flex-col items-center">
+          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6">
+            <AlertCircle size={32} />
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Failed to load meal</h2>
+          <p className="text-slate-500 mb-8">{error || "This meal could not be found."}</p>
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center justify-center gap-2 w-full bg-wellness-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-wellness-700 transition-colors"
+          >
+            Return to Dashboard
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-wellness-50 pb-20 md:pb-12">
+    <main className="min-h-screen bg-wellness-50 pb-20 md:pb-12">
       
       {/* Premium Hero Section */}
       <div className="relative h-72 md:h-96 w-full overflow-hidden">
@@ -76,12 +93,12 @@ export default function MealDetails() {
         {/* Hero Content */}
         <div className="absolute bottom-6 left-4 right-4 md:left-8 md:right-8 text-white max-w-5xl mx-auto">
           <div className="flex flex-wrap gap-2 mb-3">
-            <span className="text-xs font-bold tracking-wider uppercase bg-wellness-600 px-3 py-1 rounded-full">
+            <Badge variant="primary" className="px-3 py-1">
               {meal.time}
-            </span>
-            <span className="text-xs font-bold tracking-wider uppercase bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">
+            </Badge>
+            <Badge variant="glass" className="px-3 py-1">
               {meal.cuisine}
-            </span>
+            </Badge>
           </div>
           
           <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight">{meal.mealName}</h1>
@@ -94,11 +111,11 @@ export default function MealDetails() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 -mt-4 relative z-10 space-y-6">
+      <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 -mt-4 relative z-content space-y-6">
         
-        {/* Action Bar (Top) */}
-        <div className="bg-white rounded-2xl p-2 shadow-sm border border-slate-100 flex items-center justify-between overflow-x-auto hide-scrollbar gap-2">
-          <div className="flex gap-2 flex-shrink-0">
+        {/* Desktop Action Bar */}
+        <div className="hidden md:flex bg-white rounded-2xl p-2 shadow-sm border border-slate-100 items-center justify-between gap-2">
+          <div className="flex gap-2">
             <button onClick={() => navigate('/grocery-list')} className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-wellness-600 hover:bg-wellness-700 rounded-xl transition-colors">
               <ShoppingCart size={18} /> Add Ingredients
             </button>
@@ -106,7 +123,7 @@ export default function MealDetails() {
               <Bookmark size={18} /> Save
             </button>
           </div>
-          <div className="flex flex-shrink-0">
+          <div>
             <button onClick={() => navigate('/generator')} className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-wellness-700 bg-wellness-50 hover:bg-wellness-100 rounded-xl transition-colors">
               <RefreshCw size={18} /> Replace
             </button>
@@ -135,11 +152,13 @@ export default function MealDetails() {
             <section className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2"><Utensils size={20} className="text-slate-400"/> Ingredients</h2>
-                <span className="text-sm font-medium bg-slate-100 text-slate-600 px-3 py-1 rounded-full flex items-center gap-1.5"><Scale size={14}/> {meal.servingSize}</span>
+                <Badge variant="secondary" icon={<Scale size={14}/>}>
+                  {meal.servingSize}
+                </Badge>
               </div>
               
               <ul className="space-y-3 mb-8">
-                {meal.ingredients.map((item, idx) => {
+                {meal.ingredients?.map((item, idx) => {
                   const isChecked = checkedIngredients.has(idx);
                   return (
                     <li 
@@ -176,12 +195,12 @@ export default function MealDetails() {
             <section className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
               <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><Clock size={20} className="text-slate-400"/> Preparation</h2>
               <div className="space-y-6">
-                {meal.steps.map((step, idx) => (
+                {meal.steps?.map((step, idx) => (
                   <div key={idx} className="flex gap-4 relative">
                     {idx !== meal.steps.length - 1 && (
                       <div className="absolute top-8 bottom-0 left-4 w-[2px] bg-slate-100 -ml-[1px]" />
                     )}
-                    <div className="w-8 h-8 rounded-full bg-wellness-100 text-wellness-700 flex items-center justify-center font-bold flex-shrink-0 z-10 shadow-sm border border-white">
+                    <div className="w-8 h-8 rounded-full bg-wellness-100 text-wellness-700 flex items-center justify-center font-bold flex-shrink-0 z-content shadow-sm border border-white">
                       {idx + 1}
                     </div>
                     <p className="text-slate-700 pt-1 leading-relaxed text-lg">{step}</p>
@@ -201,21 +220,36 @@ export default function MealDetails() {
               
               {/* Macros */}
               <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
-                  <div className="text-xs text-blue-600 font-bold mb-1 uppercase tracking-wider">Protein</div>
-                  <div className="text-xl font-black text-slate-800">{meal.protein}g</div>
+                
+                {/* Calories full width */}
+                <div className="col-span-2 bg-orange-50 rounded-xl p-4 border border-orange-100 flex justify-between items-center group hover:bg-orange-100 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center group-hover:bg-white transition-colors">
+                      <Flame size={18} />
+                    </div>
+                    <span className="text-sm text-orange-700 font-bold uppercase tracking-wider">Calories</span>
+                  </div>
+                  <div className="text-2xl font-black text-slate-800">{meal.calories} <span className="text-sm font-medium text-slate-500">kcal</span></div>
                 </div>
-                <div className="bg-purple-50 rounded-xl p-3 border border-purple-100">
-                  <div className="text-xs text-purple-600 font-bold mb-1 uppercase tracking-wider">Carbs</div>
-                  <div className="text-xl font-black text-slate-800">{meal.carbs}g</div>
+
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 hover:bg-blue-100 transition-colors">
+                  <div className="text-xs text-blue-600 font-bold mb-1 uppercase tracking-wider flex items-center gap-1.5"><ShieldCheck size={12}/> Protein</div>
+                  <div className="text-2xl font-black text-slate-800">{meal.protein}<span className="text-sm font-bold text-slate-500">g</span></div>
                 </div>
-                <div className="bg-rose-50 rounded-xl p-3 border border-rose-100">
-                  <div className="text-xs text-rose-600 font-bold mb-1 uppercase tracking-wider">Fat</div>
-                  <div className="text-xl font-black text-slate-800">{meal.fat}g</div>
+                
+                <div className="bg-purple-50 rounded-xl p-4 border border-purple-100 hover:bg-purple-100 transition-colors">
+                  <div className="text-xs text-purple-600 font-bold mb-1 uppercase tracking-wider flex items-center gap-1.5"><Zap size={12}/> Carbs</div>
+                  <div className="text-2xl font-black text-slate-800">{meal.carbs}<span className="text-sm font-bold text-slate-500">g</span></div>
                 </div>
-                <div className="bg-green-50 rounded-xl p-3 border border-green-100">
-                  <div className="text-xs text-green-600 font-bold mb-1 uppercase tracking-wider">Fiber</div>
-                  <div className="text-xl font-black text-slate-800">{meal.fiber}g</div>
+                
+                <div className="bg-rose-50 rounded-xl p-4 border border-rose-100 hover:bg-rose-100 transition-colors">
+                  <div className="text-xs text-rose-600 font-bold mb-1 uppercase tracking-wider flex items-center gap-1.5"><HeartPulse size={12}/> Fat</div>
+                  <div className="text-2xl font-black text-slate-800">{meal.fat}<span className="text-sm font-bold text-slate-500">g</span></div>
+                </div>
+                
+                <div className="bg-green-50 rounded-xl p-4 border border-green-100 hover:bg-green-100 transition-colors">
+                  <div className="text-xs text-green-600 font-bold mb-1 uppercase tracking-wider flex items-center gap-1.5"><Scale size={12}/> Fiber</div>
+                  <div className="text-2xl font-black text-slate-800">{meal.fiber}<span className="text-sm font-bold text-slate-500">g</span></div>
                 </div>
               </div>
 
@@ -268,7 +302,7 @@ export default function MealDetails() {
               <div>
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1"><AlertCircle size={14}/> Tags & Allergens</h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {meal.tags.map(tag => (
+                  {meal.tags?.map(tag => (
                     <span key={tag} className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs font-semibold">
                       {tag}
                     </span>
@@ -280,6 +314,19 @@ export default function MealDetails() {
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile Action Bar (Sticky Bottom) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 pb-safe z-toast shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)] flex justify-between gap-2">
+        <button onClick={() => navigate('/grocery-list')} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-white bg-wellness-600 active:bg-wellness-700 rounded-xl transition-colors">
+          <ShoppingCart size={18} /> Add
+        </button>
+        <button className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-slate-700 bg-slate-100 active:bg-slate-200 rounded-xl transition-colors">
+          <Bookmark size={18} />
+        </button>
+        <button onClick={() => navigate('/generator')} className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-wellness-700 bg-wellness-50 active:bg-wellness-100 border border-wellness-200 rounded-xl transition-colors">
+          <RefreshCw size={18} />
+        </button>
+      </div>
+    </main>
   );
 }

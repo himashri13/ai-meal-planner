@@ -1,29 +1,33 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Sparkles, AlertTriangle } from 'lucide-react';
 
-export default function AiInsightsCard({ summary, meals }) {
+const AiInsightsCard = ({ summary, meals }) => {
   // Simple heuristic logic to generate mock AI insights based on the plan
-  const insights = [];
+  const insights = useMemo(() => {
+    const result = [];
 
-  if (summary.protein < 50) {
-    insights.push({ type: 'warning', text: 'Protein is slightly low today. Consider adding roasted chana or a protein shake as a snack.' });
-  } else {
-    insights.push({ type: 'success', text: 'Great job! This plan hits your high-protein target.' });
-  }
+    if (summary.protein < 50) {
+      result.push({ type: 'warning', text: 'Protein is slightly low today. Consider adding roasted chana or a protein shake as a snack.' });
+    } else {
+      result.push({ type: 'success', text: 'Great job! This plan hits your high-protein target.' });
+    }
 
-  if (summary.fiber < 25) {
-    insights.push({ type: 'warning', text: 'Fiber is a bit low. Swap white rice for brown rice in your lunch.' });
-  }
+    if (summary.fiber < 25) {
+      result.push({ type: 'warning', text: 'Fiber is a bit low. Swap white rice for brown rice in your lunch.' });
+    }
 
-  const hasHighCalorieMeal = meals.some(m => m.calories > 600);
-  if (hasHighCalorieMeal) {
-    insights.push({ type: 'info', text: 'You have a heavy meal planned. Make sure to stay hydrated and active around that time.' });
-  } else {
-    insights.push({ type: 'success', text: 'Your calories are beautifully distributed throughout the day to prevent energy crashes.' });
-  }
+    const hasHighCalorieMeal = meals.some(m => m.calories > 600);
+    if (hasHighCalorieMeal) {
+      result.push({ type: 'info', text: 'You have a heavy meal planned. Make sure to stay hydrated and active around that time.' });
+    } else {
+      result.push({ type: 'success', text: 'Your calories are beautifully distributed throughout the day to prevent energy crashes.' });
+    }
+    
+    return result;
+  }, [summary, meals]);
 
   return (
-    <div className="bg-wellness-50 rounded-2xl p-5 border border-wellness-200">
+    <div className="bg-wellness-50 rounded-2xl p-6 border border-wellness-200">
       <h3 className="text-wellness-900 font-semibold flex items-center gap-2 mb-4">
         <Sparkles className="text-wellness-600" size={18} /> AI Coach Insights
       </h3>
@@ -48,3 +52,5 @@ export default function AiInsightsCard({ summary, meals }) {
     </div>
   );
 }
+
+export default React.memo(AiInsightsCard);

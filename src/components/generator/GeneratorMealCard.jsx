@@ -1,19 +1,20 @@
 import React from 'react';
-import { Clock, Dumbbell, ChefHat, RefreshCw, Bookmark, ArrowRight, Tag, Sparkles } from 'lucide-react';
+import { Clock, Dumbbell, ChefHat, RefreshCw, Bookmark, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Badge from '../ui/Badge';
 
-export default function GeneratorMealCard({ meal, onReplace, isReplacing }) {
+const GeneratorMealCard = ({ meal, onReplace, isReplacing }) => {
   // If the card is currently being replaced, show a loading shimmer overlay
   return (
-    <div className="relative bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 hover:shadow-md hover:border-wellness-300 transition-all duration-300 group overflow-hidden animate-in fade-in duration-500">
+    <div className="relative bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100 hover:shadow-lg hover:border-wellness-300 hover:-translate-y-1 transition-all duration-300 group overflow-hidden animate-in fade-in duration-500">
       
       {isReplacing && (
-        <div className="absolute inset-0 z-20 bg-white/60 backdrop-blur-sm flex items-center justify-center">
+        <div className="absolute inset-0 z-nav bg-white/60 backdrop-blur-sm flex items-center justify-center">
           <RefreshCw className="animate-spin text-wellness-600" size={24} />
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-5 relative z-10">
+      <div className="flex flex-col sm:flex-row gap-6 relative z-content">
         
         {/* Left: Image & Quick Stats */}
         <div className="w-full sm:w-1/3 flex-shrink-0">
@@ -38,13 +39,11 @@ export default function GeneratorMealCard({ meal, onReplace, isReplacing }) {
             <div className="flex items-start justify-between mb-1">
               <h3 className="font-bold text-lg text-slate-800 leading-tight">{meal.mealName}</h3>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-full whitespace-nowrap">
-                  {meal.cuisine}
-                </span>
+                <Badge variant="secondary" className="px-2">{meal.cuisine}</Badge>
                 {meal.confidenceScore && (
-                  <span className="text-xs font-bold bg-wellness-600 text-white px-2 py-1 rounded-full whitespace-nowrap flex items-center gap-1 shadow-sm">
-                    <Sparkles size={12} /> {meal.confidenceScore}% Match
-                  </span>
+                  <Badge variant="primary" icon={<Sparkles size={12} />} className="px-2 shadow-sm">
+                    {meal.confidenceScore}% Match
+                  </Badge>
                 )}
               </div>
             </div>
@@ -55,11 +54,11 @@ export default function GeneratorMealCard({ meal, onReplace, isReplacing }) {
               <span className="flex items-center gap-1"><ChefHat size={14} /> {meal.difficulty}</span>
             </div>
 
-          <div className="flex flex-wrap gap-1.5 mb-4">
+            <div className="flex flex-wrap gap-1.5 mb-4">
               {meal.tags.map(tag => (
-                <span key={tag} className="text-[10px] font-medium bg-wellness-50 text-wellness-700 px-2 py-0.5 rounded border border-wellness-100 uppercase tracking-wider">
+                <Badge key={tag} variant="outline" className="px-2 py-0.5 text-[10px]">
                   {tag}
-                </span>
+                </Badge>
               ))}
             </div>
 
@@ -121,3 +120,5 @@ export default function GeneratorMealCard({ meal, onReplace, isReplacing }) {
     </div>
   );
 }
+
+export default React.memo(GeneratorMealCard);

@@ -4,7 +4,7 @@ const RadioCard = React.forwardRef(({ label, description, icon: Icon, id, checke
   return (
     <label
       htmlFor={id}
-      className={`relative flex cursor-pointer rounded-2xl border p-4 shadow-sm focus:outline-none transition-all duration-200
+      className={`relative flex cursor-pointer rounded-2xl border p-4 shadow-sm focus:outline-none transition-all duration-200 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-wellness-500 has-[:focus-visible]:ring-offset-2
         ${checked 
           ? 'bg-wellness-50 border-wellness-500 ring-1 ring-wellness-500 shadow-wellness-500/20' 
           : 'bg-white border-slate-200 hover:border-wellness-300 hover:bg-slate-50'
@@ -47,4 +47,4 @@ const RadioCard = React.forwardRef(({ label, description, icon: Icon, id, checke
 
 RadioCard.displayName = 'RadioCard';
 
-export default RadioCard;
+export default React.memo(RadioCard);

@@ -4,7 +4,7 @@ export default function ProgressCard({ title, current, target, unit, colorClass,
   const percentage = Math.min(Math.round((current / target) * 100), 100);
 
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
       <div className="flex items-center justify-between mb-4">
         <div className={`p-2 rounded-lg ${colorClass} bg-opacity-10`}>
           <Icon size={20} className={colorClass.replace('bg-', 'text-')} />

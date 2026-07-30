@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, ArrowRight, Utensils } from 'lucide-react';
+import Badge from '../components/ui/Badge';
 
 const TIPS = [
   "Eat protein with every meal.",
@@ -23,12 +24,7 @@ const VEGETABLES = [
 
 export default function NotFound() {
   const navigate = useNavigate();
-  const [tip, setTip] = useState('');
-
-  useEffect(() => {
-    // Pick a random tip on mount
-    setTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
-  }, []);
+  const [tip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
 
   return (
     <div className="min-h-screen bg-slate-900 bg-[radial-gradient(ellipse_at_80%_10%,_#0d3d26_0%,_#071c10_42%,_#040d07_100%)] text-white overflow-hidden relative flex flex-col font-sans">
@@ -38,7 +34,7 @@ export default function NotFound() {
       <div className="absolute bottom-[-150px] left-[-150px] w-[500px] h-[500px] rounded-full bg-emerald-600/10 blur-[100px] pointer-events-none" />
 
       {/* Main Content Grid */}
-      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center max-w-7xl mx-auto w-full px-6 py-12 gap-12 lg:gap-24 relative z-10">
+      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center max-w-7xl mx-auto w-full px-6 py-12 gap-12 lg:gap-24 relative z-content">
         
         {/* LEFT: Glassmorphism Card */}
         <div className="w-full max-w-lg lg:w-1/2 order-2 lg:order-1 flex flex-col">
@@ -48,10 +44,10 @@ export default function NotFound() {
             <div className="absolute top-0 left-[20%] right-[20%] h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-50" />
             
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-8">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <Badge variant="success" className="mb-8 font-bold tracking-widest text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               404 Error
-            </div>
+            </Badge>
 
             <h1 className="text-7xl font-black mb-4 bg-gradient-to-br from-emerald-300 to-emerald-600 text-transparent bg-clip-text">
               404
@@ -121,7 +117,7 @@ export default function NotFound() {
           ))}
 
           {/* 4 [PLATE] 4 */}
-          <div className="flex items-center gap-2 sm:gap-6 relative z-10">
+          <div className="flex items-center gap-2 sm:gap-6 relative z-content">
             
             <span className="text-[120px] sm:text-[180px] font-black leading-none bg-gradient-to-br from-emerald-300 to-emerald-600 text-transparent bg-clip-text drop-shadow-[0_0_30px_rgba(52,211,153,0.2)] select-none">
               4
@@ -132,7 +128,7 @@ export default function NotFound() {
               {/* Inner Dashed Rim */}
               <div className="absolute inset-4 sm:inset-6 rounded-full border-2 border-dashed border-emerald-400/40" />
               
-              <div className="relative z-10 flex flex-col items-center justify-center gap-1">
+              <div className="relative z-content flex flex-col items-center justify-center gap-1">
                 <span className="text-3xl sm:text-5xl">🍽️</span>
                 <span className="font-serif italic font-black text-2xl sm:text-4xl text-emerald-300 tracking-tighter drop-shadow-[0_0_15px_rgba(110,231,183,0.5)]">OOPS!</span>
                 <span className="text-[10px] sm:text-xs font-bold tracking-widest text-emerald-400/70 uppercase">Not Found</span>
@@ -148,7 +144,7 @@ export default function NotFound() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-6 px-8 border-t border-white/5 bg-white/5 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10 text-xs text-slate-400">
+      <footer className="w-full py-6 px-8 border-t border-white/5 bg-white/5 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 relative z-content text-xs text-slate-400">
         <p>© 2026 AI Meal Planner</p>
         <p className="font-medium tracking-wide">Healthy Eating • Personalized Nutrition</p>
       </footer>

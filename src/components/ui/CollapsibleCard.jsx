@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import Badge from './Badge';
 
 export default function CollapsibleCard({ title, icon: Icon, children, defaultOpen = false, isComplete = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-4 transition-all duration-300 hover:border-wellness-300">
+    <div className="card border-slate-200 overflow-hidden mb-4 transition-all duration-300 hover:border-wellness-300">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -18,7 +19,7 @@ export default function CollapsibleCard({ title, icon: Icon, children, defaultOp
           <h3 className={`font-semibold ${isComplete ? 'text-slate-800' : 'text-slate-600'}`}>{title}</h3>
         </div>
         <div className="flex items-center gap-3">
-          {isComplete && <span className="text-xs font-medium text-wellness-600 bg-wellness-50 px-2 py-1 rounded-full">Completed</span>}
+          {isComplete && <Badge variant="outline" className="px-2 font-medium">Completed</Badge>}
           {isOpen ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
         </div>
       </button>
