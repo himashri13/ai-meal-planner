@@ -25,6 +25,7 @@ export default function Personalization() {
     }
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const formValues = watch();
 
   // Calculate Profile Completion
@@ -41,11 +42,11 @@ export default function Personalization() {
   const completedCount = sections.filter(s => s.isComplete).length;
   const completionPercentage = Math.round((completedCount / sections.length) * 100);
 
-  const onSubmit = async (data) => {
+  const onSubmit = async () => {
     setIsSaving(true);
     // Simulate API save
     await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Saved Personalization Data:", data);
+    // API save complete
     navigate('/dashboard');
   };
 

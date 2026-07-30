@@ -13,7 +13,7 @@ export const getProfile = async () => {
         } else {
           resolve(null);
         }
-      } catch (e) {
+      } catch {
         reject(new Error('Failed to fetch profile'));
       }
     }, 500);
@@ -26,7 +26,7 @@ export const updateProfile = async (profileData) => {
       try {
         localStorage.setItem('ai_meal_planner_profile', JSON.stringify(profileData));
         resolve(profileData);
-      } catch (e) {
+      } catch {
         reject(new Error('Failed to update profile'));
       }
     }, 600);
@@ -39,7 +39,7 @@ export const deleteProfile = async () => {
       try {
         localStorage.removeItem('ai_meal_planner_profile');
         resolve({ success: true });
-      } catch (e) {
+      } catch {
         reject(new Error('Failed to delete profile'));
       }
     }, 400);

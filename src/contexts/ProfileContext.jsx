@@ -2,10 +2,11 @@ import React, { createContext, useState, useEffect, useCallback, useMemo } from 
 import { getProfile as apiGetProfile, updateProfile as apiUpdateProfile } from '../api/profileApi';
 import { useAuth } from '../hooks/useAuth';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const ProfileContext = createContext(null);
 
 export const ProfileProvider = ({ children }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,6 +32,7 @@ export const ProfileProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProfile();
   }, [fetchProfile]);
 

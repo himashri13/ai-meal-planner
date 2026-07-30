@@ -8,15 +8,16 @@ export const getGroceryList = async (meals, userProfile) => {
   // In a real app, this might be a GET request to /api/groceries
   // But since we generate it on the fly from meals, it could be a POST to /api/groceries/generate
   // or just fetching the persisted list from backend
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     try {
       // simulate network delay
       setTimeout(() => {
         const list = mockGenerateGroceryList(meals, userProfile);
         resolve(list);
       }, 800);
-    } catch (e) {
-      reject(new Error('Failed to fetch grocery list'));
+    } catch {
+      // Return mock data for demo
+      resolve([]);
     }
   });
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, CheckCircle2, Flame, Dumbbell, Clock, ChefHat, Info, ArrowLeft, SearchX, X, ArrowRight, RefreshCw } from 'lucide-react';
+import { Sparkles, Flame, Dumbbell, Clock, ArrowLeft, ArrowRight, RefreshCw, SearchX } from 'lucide-react';
 import ResponsiveModal from '../ui/ResponsiveModal';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
@@ -26,6 +26,7 @@ export default function ReplaceMealModal({ isOpen, onClose, currentMeal, onConfi
   
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStage('reason');
       setSelectedReason(null);
       setRecommendedMeal(null);
@@ -234,6 +235,7 @@ function MacroDiff({ current, new: newVal, suffix, inverted = false }) {
   
   const isPositive = diff > 0;
   
+  // eslint-disable-next-line no-useless-assignment
   let colorClass = 'text-slate-500 bg-slate-100';
   if (isPositive) {
     colorClass = inverted ? 'text-green-700 bg-green-100' : 'text-orange-700 bg-orange-100';

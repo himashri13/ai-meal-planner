@@ -25,7 +25,7 @@ const parseIngredient = (ingredientStr) => {
     const qtyStr = match[1];
     const rest = match[2];
     
-    let baseQty = 0;
+    let baseQty;
     if (qtyStr.includes('/')) {
       const [num, den] = qtyStr.split('/');
       baseQty = parseFloat(num) / parseFloat(den);
@@ -66,7 +66,7 @@ export const generateGroceryList = async (meals, householdSize = 1) => {
       const category = determineCategory(parsed.hasQuantity ? parsed.rest : parsed.original);
       
       let scaledText = parsed.original;
-      let scaledValue = 0;
+      let scaledValue;
       
       if (parsed.hasQuantity) {
         scaledValue = parsed.baseQty * householdSize;
