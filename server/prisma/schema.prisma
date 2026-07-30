@@ -1,0 +1,503 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -----------------------------------------------------------------------------
+// ENUMS
+// -----------------------------------------------------------------------------
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum GoalType {
+  WEIGHT_LOSS
+  MUSCLE_GAIN
+  MAINTENANCE
+  HEALTH_IMPROVEMENT
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+  DESSERT
+}
+
+enum DietType {
+  ANY
+  VEGETARIAN
+  VEGAN
+  KETO
+  PALEO
+  PESCATARIAN
+  GLUTEN_FREE
+}
+
+enum Cuisine {
+  AMERICAN
+  ITALIAN
+  MEXICAN
+  ASIAN
+  INDIAN
+  MEDITERRANEAN
+  OTHER
+}
+
+enum Allergy {
+  DAIRY
+  EGGS
+  TREE_NUTS
+  PEANUTS
+  SHELLFISH
+  WHEAT
+  SOY
+  FISH
+  OTHER
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum PlanStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum MealStatus {
+  PLANNED
+  CONSUMED
+  SKIPPED
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHTLY_ACTIVE
+  MODERATELY_ACTIVE
+  VERY_ACTIVE
+  SUPER_ACTIVE
+}
+
+enum AuthenticationProvider {
+  LOCAL
+  GOOGLE
+  APPLE
+  FACEBOOK
+}
+
+enum NotificationType {
+  REMINDER
+  ALERT
+  PROMO
+  SYSTEM
+}
+
+enum SubscriptionStatus {
+  FREE
+  ACTIVE
+  CANCELED
+  PAST_DUE
+}
+
+enum WeightUnit {
+  KG
+  LBS
+}
+
+enum MeasurementUnit {
+  GRAM
+  MILLILITER
+  CUP
+  PIECE
+  TBSP
+  TSP
+  OUNCE
+}
+
+// -----------------------------------------------------------------------------
+// MODELS
+// -----------------------------------------------------------------------------
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  username  String?   @unique
+  password  String? // Nullable for OAuth users
+  role      Role      @default(USER)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Relations (1:1)
+  profile        UserProfile?
+  settings       UserSettings?
+  authentication Authentication?
+
+  // Relations (1:N)
+  refreshTokens     RefreshToken[]
+  goals             Goal[]
+  weightLogs        WeightLog[]
+  nutritionLogs     NutritionLog[]
+  mealPlans         MealPlan[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+  aiRecommendations AIRecommendation[]
+  passwordResetTokens PasswordResetToken[]
+
+  // Relations (M:N via implicit or explicit tables)
+  favoriteMeals FavoriteMeal[]
+  savedMeals    SavedMeal[]
+  groceryLists  GroceryList[]
+
+  @@index([email])
+  @@index([username])
+}
+
+model Authentication {
+  id         String                 @id @default(uuid())
+  userId     String                 @unique
+  provider   AuthenticationProvider @default(LOCAL)
+  providerId String? // e.g., Google sub ID
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  isRevoked Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserProfile {
+  id                String         @id @default(uuid())
+  userId            String         @unique
+  firstName         String?
+  lastName          String?
+  age               Int?
+  gender            Gender?
+  height            Float? // In cm
+  weight            Float? // Current weight
+  targetWeight      Float?
+  activityLevel     ActivityLevel?
+  dietType          DietType       @default(ANY)
+  allergies         Allergy[]
+  dislikes          String[]
+  preferredCuisines Cuisine[]
+  dailyCalories     Int?
+  dailyProtein      Float?
+  dailyCarbs        Float?
+  dailyFat          Float?
+  dailyFiber        Float?
+  dailyWaterGoal    Float? // In liters/ml
+  updatedAt         DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserSettings {
+  id                 String     @id @default(uuid())
+  userId             String     @unique
+  weightUnit         WeightUnit @default(KG)
+  emailNotifications Boolean    @default(true)
+  pushNotifications  Boolean    @default(true)
+  theme              String     @default("light")
+  updatedAt          DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Goal {
+  id           String    @id @default(uuid())
+  userId       String
+  goalType     GoalType
+  targetValue  Float
+  currentValue Float
+  startDate    DateTime  @default(now())
+  targetDate   DateTime?
+  status       String    @default("ACTIVE") // ACTIVE, ACHIEVED, ABANDONED
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([goalType])
+}
+
+model WeightLog {
+  id        String   @id @default(uuid())
+  userId    String
+  weight    Float
+  date      DateTime @default(now())
+  notes     String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model NutritionLog {
+  id        String   @id @default(uuid())
+  userId    String
+  date      DateTime @default(now())
+  calories  Int
+  protein   Float
+  carbs     Float
+  fat       Float
+  fiber     Float?
+  water     Float?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Meal {
+  id              String     @id @default(uuid())
+  title           String
+  description     String?
+  imageUrl        String?
+  calories        Int
+  protein         Float
+  carbs           Float
+  fat             Float
+  fiber           Float?
+  sugar           Float?
+  servings        Int        @default(1)
+  mealType        MealType
+  difficulty      Difficulty @default(MEDIUM)
+  cuisine         Cuisine    @default(OTHER)
+  preparationTime Int? // in minutes
+  cookingTime     Int? // in minutes
+  isAIGenerated   Boolean    @default(false)
+  isPublic        Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?
+
+  // Relations
+  ingredients   MealIngredient[]
+  mealPlanMeals MealPlanMeal[]
+  favoritedBy   FavoriteMeal[]
+  savedBy       SavedMeal[]
+
+  @@index([mealType])
+}
+
+model MealPlan {
+  id          String     @id @default(uuid())
+  userId      String
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  status      PlanStatus @default(DRAFT)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meals       MealPlanMeal[]
+  groceryList GroceryList?
+
+  @@index([userId])
+  @@index([status])
+}
+
+model MealPlanMeal {
+  id         String     @id @default(uuid())
+  mealPlanId String
+  mealId     String
+  date       DateTime // The specific day this meal is planned for
+  mealType   MealType
+  status     MealStatus @default(PLANNED)
+  createdAt  DateTime   @default(now())
+
+  mealPlan MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  meal     Meal     @relation(fields: [mealId], references: [id], onDelete: Restrict)
+
+  @@index([mealPlanId])
+  @@index([mealId])
+  @@index([date])
+}
+
+model Ingredient {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  calories  Float? // per 100g/unit baseline
+  protein   Float?
+  carbs     Float?
+  fat       Float?
+  createdAt DateTime @default(now())
+
+  mealIngredients MealIngredient[]
+}
+
+model MealIngredient {
+  id           String          @id @default(uuid())
+  mealId       String
+  ingredientId String
+  quantity     Float
+  unit         MeasurementUnit
+  notes        String?
+
+  meal       Meal       @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@index([mealId])
+  @@index([ingredientId])
+}
+
+model FavoriteMeal {
+  id        String   @id @default(uuid())
+  userId    String
+  mealId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meal Meal @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mealId])
+  @@index([userId])
+}
+
+model SavedMeal {
+  id        String   @id @default(uuid())
+  userId    String
+  mealId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meal Meal @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mealId])
+  @@index([userId])
+}
+
+model GroceryList {
+  id         String   @id @default(uuid())
+  userId     String
+  mealPlanId String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealPlan MealPlan?     @relation(fields: [mealPlanId], references: [id], onDelete: SetNull)
+  items    GroceryItem[]
+
+  @@index([userId])
+}
+
+model GroceryItem {
+  id            String          @id @default(uuid())
+  groceryListId String
+  name          String
+  quantity      Float
+  unit          MeasurementUnit
+  isPurchased   Boolean         @default(false)
+  category      String? // e.g., Produce, Meat, Dairy
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  groceryList GroceryList @relation(fields: [groceryListId], references: [id], onDelete: Cascade)
+
+  @@index([groceryListId])
+}
+
+model AIRecommendation {
+  id        String   @id @default(uuid())
+  userId    String
+  prompt    String
+  response  String   @db.Text
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model SubscriptionPlan {
+  id        String             @id @default(uuid())
+  name      String             @unique
+  price     Float
+  status    SubscriptionStatus @default(ACTIVE)
+  features  String[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  resource  String
+  details   String?  @db.Text
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+}
